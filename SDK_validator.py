@@ -343,26 +343,26 @@ class WriteToEndpointsFile(object):
             curr_version = int(head_line[-2].split('V')[-1])
             new_version = 'V' + str(curr_version + 200)
 
-        column_added = False
-        while count < len(self.all_lines):
-            add_col = None
-            line = self.all_lines[count].rstrip('\n')
+            column_added = False
+            while count < len(self.all_lines):
+                add_col = None
+                line = self.all_lines[count].rstrip('\n')
 
-            if "Endpoints" in self.all_lines[count]:
-                add_col = line + " " + str(new_version) + '               |\n'
+                if "Endpoints" in self.all_lines[count]:
+                    add_col = line + " " + str(new_version) + '               |\n'
 
-            elif "---------" in self.all_lines[count]:
-                add_col = line + ' :-----------------: |\n'
-                column_added = True
+                elif "---------" in self.all_lines[count]:
+                    add_col = line + ' :-----------------: |\n'
+                    column_added = True
 
-            if add_col:
-                self.all_lines[count] = add_col
-                self.write_md()
+                if add_col:
+                    self.all_lines[count] = add_col
+                    self.write_md()
 
-            if column_added:
-                break
+                if column_added:
+                    break
 
-            count += 1
+                count += 1
 
     def get_rows(self, resource_name):
         count = 0
@@ -415,7 +415,7 @@ class WriteToEndpointsFile(object):
                 self.load_md()
                 lines.append(dict({'line_no':line_no+1, 'line':self.all_lines[line_no+1]}))
 
-    def main(self, new_version=True):
+    def main(self, new_version):
         if self.is_ansible == True:
             exe = modifyExecutedFiles(self.executed_files)
             self.executed_files = exe
