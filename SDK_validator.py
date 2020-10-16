@@ -54,7 +54,7 @@ class DataFromWebScraping(object):
         r = requests.get(URL)
 
         soup = BeautifulSoup(r.content, 'html5lib')  # If this line causes an error, run 'pip install html5lib' or install html5lib
-		        body = soup.find('body')
+        body = soup.find('body')
         string = str(body).replace('<body>define([],"', '').replace('");</body>', '')
         soup = BeautifulSoup(string, 'html5lib')
         api_list = soup.find('div', {"class": "\\\"api-list\\\""})
@@ -124,7 +124,7 @@ def ExecuteFiles():
     examples = []
     valid_sdks = ['python', 'ruby', 'go', 'ansible', 'puppet', 'chef']
     print("loaded_resources are {}".format(str(loaded_resources)))
-    val = input("Please enter SDK you want to validate: ")
+    val = input("Please enter SDK you want to validate (python, ansible): ")
     if val in ['ruby', 'chef', 'puppet']:
         rel_dict2 = {'Storage Volume Templates': 'volume_template',
                      'Storage Volume Attachments': 'volume_attachment',
@@ -154,6 +154,7 @@ def ExecuteFiles():
             example_file = cwd + '/' + example
             try:
                 if val == 'python':
+                    is_ansible = False
                     example_file_with_extension = example_file + str('.py')
                     print(">> Executing {}..".format(example))
                     exec(compile(open(example_file_with_extension).read(), example_file_with_extension, 'exec'))
@@ -318,8 +319,6 @@ class WriteToEndpointsFile(object):
         self.all_lines = None
         self.executed_files = executed_files
         self.is_ansible = is_ansible
-        path_parent = os.path.dirname(os.getcwd())
-        os.chdir(path_parent)
 
     def write_md(self):
         file = open('endpoints-support.md', 'w')
@@ -456,7 +455,7 @@ def removeLogFiles(val):
 if __name__ == '__main__':
     executed_files, is_ansible = ExecuteFiles()
     resources_from_textfile = LoadResourcesFromFile()
-    val4 = input('Please provide value as true to reside log files, else provide false')
+    val4 = input('Please provide value as true to reside log files, else provide false: ')
     if val4 == False:
         removeLogFiles(val4)
     else:
