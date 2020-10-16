@@ -13,13 +13,11 @@ ruby_resource_dict = {'Connection Template': 'connection_template',
                       'Hypervisor Cluster Profile': 'hypervisor_cluster_profile',
                       'Hypervisor Manager': 'hypervisor_manager',
                       'Interconnect': 'interconnect',
-                      'Interconnect Type': 'interconnect_type',
                       'LIG Uplink Set': 'lig_uplink_set',
                       'Logical Enclosure': 'logical_enclosure',
                       'Logical Interconnect': 'logical_interconnect',
                       'Logical Interconnect Group': 'logical_interconnect_group',
                       'Network Set': 'network_set',
-                      'OS Deployment Plan': 'os_deployment_plan',
                       'Scope': 'scope',
                       'Server Certificate': 'server_certificate',
                       'Server Hardware': 'server_hardware',
@@ -240,13 +238,16 @@ def file_rewrite(file_path, filename, file_type):
 
 
 if __name__ == '__main__':
-
-    generate_library_files(api_version, lib_path, 'library', 'Logical Interconnect')
-    generate_library_files(api_version, spec_path, 'spec', 'Logical Interconnect')
-    ruby_library_extra_config_files(api_version, cwd)
-    ruby_spec_extra_config_files(api_version, cwd)
+    for resource in ruby_resource_dict:
+        generate_library_files(api_version, lib_path, 'library', resource)
+        if resource not in ['LIG Uplink Set']:
+            generate_library_files(api_version, spec_path, 'spec', resource)
+        else:
+            pass
+        ruby_library_extra_config_files(api_version, cwd)
+        ruby_spec_extra_config_files(api_version, cwd)
     repo.git.add(A=True)
     repo.git.commit('-m', 'PR for config changes #pr',
-                author='chebroluharika@gmail.com') # to commit changes
+                    author='chebroluharika@gmail.com') # to commit changes
     repo.git.push('--set-upstream', 'origin', new_branch)
     repo.close()
