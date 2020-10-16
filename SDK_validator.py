@@ -50,6 +50,9 @@ class DataFromWebScraping(object):
             self.replaced_ele = self.ele.replace('_', '-')
 
     def data_scraped(self):
+        """
+        Scrapping data for list of endpoints from API docs.
+        """
         URL = "https://techlibrary.hpe.com/docs/enterprise/servers/oneview5.0/cicf-api/en/rest/" + self.replaced_ele + ".html.js"
         r = requests.get(URL)
 
@@ -71,6 +74,9 @@ class DataFromWebScraping(object):
         return api_with_method
 
 class Tee(object):
+  """
+  To show logs on console and flushing the same to logs file.
+  """
     def __init__(self, filename):
         self.stdout = sys.stdout
         self.file = filename
@@ -85,6 +91,9 @@ class Tee(object):
         self.file.flush()
 
 def runAnsiblePlaybooks(success_files, failed_files):
+   """
+   To run ansible playbooks using python module.
+   """
     ansible_modules_list = open('ansible_modules_list', 'r')
     resources_for_ansible = ansible_modules_list.read().splitlines()
     ansible_modules_list.close()
@@ -101,12 +110,18 @@ def runAnsiblePlaybooks(success_files, failed_files):
     return success_files, failed_files
 
 def LoadResourcesFromFile():
+   """
+   To load resources(examples) from external config file.
+   """
     resource_file = open('re.txt','r')
     resources_from_file = resource_file.read().splitlines()
     resource_file.close()
     return resources_from_file
 
 def modifyExecutedFiles(executed_files):
+    """
+    Modifying ansible playbook names to make them uniform across all SDK's
+    """
     exe = []
     for executed_file in executed_files:
         executed_file = executed_file.replace('.yml', '').replace('oneview_', '').replace('_facts', '')
