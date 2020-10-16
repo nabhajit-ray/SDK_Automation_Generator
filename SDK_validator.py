@@ -339,30 +339,29 @@ class WriteToEndpointsFile(object):
                 break
 
         head_line = self.all_lines[count + 1].split()
-        if str(new_version) == 'True':
-            curr_version = int(head_line[-2].split('V')[-1])
-            new_version = 'V' + str(curr_version + 200)
+        curr_version = int(head_line[-2].split('V')[-1])
+        new_version = 'V' + str(curr_version + 200)
 
-            column_added = False
-            while count < len(self.all_lines):
-                add_col = None
-                line = self.all_lines[count].rstrip('\n')
+        column_added = False
+        while count < len(self.all_lines):
+            add_col = None
+            line = self.all_lines[count].rstrip('\n')
 
-                if "Endpoints" in self.all_lines[count]:
-                    add_col = line + " " + str(new_version) + '               |\n'
+            if "Endpoints" in self.all_lines[count]:
+                add_col = line + " " + str(new_version) + '               |\n'
 
-                elif "---------" in self.all_lines[count]:
-                    add_col = line + ' :-----------------: |\n'
-                    column_added = True
+            elif "---------" in self.all_lines[count]:
+                add_col = line + ' :-----------------: |\n'
+                column_added = True
 
-                if add_col:
-                    self.all_lines[count] = add_col
-                    self.write_md()
+            if add_col:
+                self.all_lines[count] = add_col
+                self.write_md()
 
-                if column_added:
-                    break
+            if column_added:
+                break
 
-                count += 1
+            count += 1
 
     def get_rows(self, resource_name):
         count = 0
@@ -405,17 +404,18 @@ class WriteToEndpointsFile(object):
 
             if not end_point_found:
                 new_end_points.append(end_point)
-            for end_point in new_end_points:
-                add_col = '|<sub>'+list(end_point)[0]+'</sub>                                                      |'+' '+list(end_point)[1]+'      '+ \
-                                              '|  :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   |  ' \
-                                                                    ':heavy_minus_sign:   |  :heavy_minus_sign:   |  :heavy_minus_sign:   |  :white_check_mark:   |\n'
-                line_no = lines[-1].get('line_no')
-                self.all_lines[line_no] = self.all_lines[line_no]+add_col
-                self.write_md()
-                self.load_md()
-                lines.append(dict({'line_no':line_no+1, 'line':self.all_lines[line_no+1]}))
+        for end_point in new_end_points:
+            add_col = '|<sub>'+list(end_point)[0]+'</sub>                                                      |'+' '+list(end_point)[1]+'      '+ \
+                      '|  :heavy_minus_sign:   | :heavy_minus_sign:   | :heavy_minus_sign:   |  ' \
+                      ':heavy_minus_sign:   |  :heavy_minus_sign:   |  :heavy_minus_sign:   |  :white_check_mark:   |\n'
+            line_no = lines[-1].get('line_no')
+            self.all_lines[line_no] = self.all_lines[line_no]+add_col
+            self.write_md()
+            self.load_md()
+            lines.append(dict({'line_no':line_no+1, 'line':self.all_lines[line_no+1]}))
 
     def main(self, new_version):
+        i = 0
         if self.is_ansible == True:
             exe = modifyExecutedFiles(self.executed_files)
             self.executed_files = exe
@@ -431,10 +431,11 @@ class WriteToEndpointsFile(object):
         else:
             print("no col addition in endpoints file as there is no new APIVersion")
         for resource_name in resource_names:
-            webscraping_data = DataFromWebScraping(ele)
+            webscraping_data = DataFromWebScraping(self.executed_files[i])
             data_returned_from_web_scraping = webscraping_data.data_scraped()
             st_no, end_no = self.get_rows(resource_name)
             self.add_checks(st_no, end_no, data_returned_from_web_scraping)
+            i = i + 1
         print("-------Completed write to endpoints file--------")
 
 def removeLogFiles(val):
