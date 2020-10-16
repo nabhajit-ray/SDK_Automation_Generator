@@ -129,7 +129,7 @@ def ExecuteFiles():
         rel_dict2 = {'Storage Volume Templates': 'volume_template',
                      'Storage Volume Attachments': 'volume_attachment',
                      'Certificates Server': 'server_certificate'
-                    }                                                                                                                   }
+                    }
         rel_dict.update(rel_dict2)
     else:
         pass
@@ -183,7 +183,7 @@ def ExecuteFiles():
                     output, errors = p.communicate()
                     if output is not None:
                         success_files.append(example)
-                    else:                                                                                                                                                                                           failed_files.append(example)
+                    else:                                                                                                                                                                                           
                         failed_files.append(example)
                 elif val == 'chef'and example not in ['tasks', 'scopes', 'interconnect_types']:
                     example_file_with_extension = example_file[:-1] + str('.rb')
@@ -192,7 +192,7 @@ def ExecuteFiles():
                     output, errors = p.communicate()
                     if output is not None:
                         success_files.append(example)
-                    else:                                                                                                                                                                                           failed_files.append(example)
+                    else: 
                         failed_files.append(example)          
                 else:
                     pass
