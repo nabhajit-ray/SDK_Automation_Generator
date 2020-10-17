@@ -50,9 +50,9 @@ class DataFromWebScraping(object):
             self.replaced_ele = self.ele.replace('_', '-')
 
     def data_scraped(self):
-    """
-    Scrapping data for list of endpoints from API docs.
-    """
+        """
+        Scrapping data for list of endpoints from API docs.
+        """
         URL = "https://techlibrary.hpe.com/docs/enterprise/servers/oneview5.0/cicf-api/en/rest/" + self.replaced_ele + ".html.js"
         r = requests.get(URL)
 
@@ -74,9 +74,9 @@ class DataFromWebScraping(object):
         return api_with_method
 
 class Tee(object):
-"""
-To show logs on console and flushing the same to logs file.
-"""
+    """
+    To show logs on console and flushing the same to logs file.
+    """
     def __init__(self, filename):
         self.stdout = sys.stdout
         self.file = filename
@@ -91,9 +91,9 @@ To show logs on console and flushing the same to logs file.
         self.file.flush()
 
 def runAnsiblePlaybooks(success_files, failed_files):
-"""
-To run ansible playbooks using python module.
-"""
+    """
+    To run ansible playbooks using python module.
+    """
     ansible_modules_list = open('ansible_modules_list', 'r')
     resources_for_ansible = ansible_modules_list.read().splitlines()
     ansible_modules_list.close()
@@ -110,9 +110,9 @@ To run ansible playbooks using python module.
     return success_files, failed_files
 
 def LoadResourcesFromFile():
-   """
-   To load resources(examples) from external config file.
-   """
+    """
+    To load resources(examples) from external config file.
+    """
     resource_file = open('re.txt','r')
     resources_from_file = resource_file.read().splitlines()
     resource_file.close()
