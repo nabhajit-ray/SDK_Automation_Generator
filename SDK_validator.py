@@ -50,6 +50,9 @@ class DataFromWebScraping(object):
             self.replaced_ele = self.ele.replace('_', '-')
 
     def data_scraped(self):
+    """
+    Scrapping data for list of endpoints from API docs.
+    """
         URL = "https://techlibrary.hpe.com/docs/enterprise/servers/oneview5.0/cicf-api/en/rest/" + self.replaced_ele + ".html.js"
         r = requests.get(URL)
 
@@ -71,6 +74,9 @@ class DataFromWebScraping(object):
         return api_with_method
 
 class Tee(object):
+"""
+To show logs on console and flushing the same to logs file.
+"""
     def __init__(self, filename):
         self.stdout = sys.stdout
         self.file = filename
@@ -85,6 +91,9 @@ class Tee(object):
         self.file.flush()
 
 def runAnsiblePlaybooks(success_files, failed_files):
+"""
+To run ansible playbooks using python module.
+"""
     ansible_modules_list = open('ansible_modules_list', 'r')
     resources_for_ansible = ansible_modules_list.read().splitlines()
     ansible_modules_list.close()
@@ -101,12 +110,18 @@ def runAnsiblePlaybooks(success_files, failed_files):
     return success_files, failed_files
 
 def LoadResourcesFromFile():
+   """
+   To load resources(examples) from external config file.
+   """
     resource_file = open('re.txt','r')
     resources_from_file = resource_file.read().splitlines()
     resource_file.close()
     return resources_from_file
 
 def modifyExecutedFiles(executed_files):
+    """
+    Modifying ansible playbook names to make them uniform across all SDK's
+    """
     exe = []
     for executed_file in executed_files:
         executed_file = executed_file.replace('.yml', '').replace('oneview_', '').replace('_facts', '')
@@ -124,7 +139,7 @@ def ExecuteFiles():
     examples = []
     valid_sdks = ['python', 'ruby', 'go', 'ansible', 'puppet', 'chef']
     print("loaded_resources are {}".format(str(loaded_resources)))
-    val = input("Please enter SDK you want to validate: ")
+    val = input("Please enter SDK you want to validate(python, ansible): ")
     if val in ['ruby', 'chef', 'puppet']:
         rel_dict2 = {'Storage Volume Templates': 'volume_template',
                      'Storage Volume Attachments': 'volume_attachment',
@@ -322,12 +337,12 @@ class WriteToEndpointsFile(object):
         self.current_version = None
 
     def write_md(self):
-        file = open('C:/Users/RAGHAVA RAO/Desktop/code/python/oneview-python/endpoints-support.md', 'w')
+        file = open('endpoints-support.md', 'w')
         file.writelines(self.all_lines)
         file.close()
 
     def load_md(self):
-        file = open('C:/Users/RAGHAVA RAO/Desktop/code/python/oneview-python/endpoints-support.md')
+        file = open('endpoints-support.md')
         self.all_lines = file.readlines()
 
     def add_column(self, product_table_name, new_version):
@@ -340,47 +355,46 @@ class WriteToEndpointsFile(object):
                 break
 
         head_line = self.all_lines[count + 1].split()
-        if new_version:
-            self.current_version = int(head_line[-2].split('V')[-1])
-            new_version = 'V' + str(self.current_version + 200)
+        self.current_version = int(head_line[-2].split('V')[-1])
+        new_version = 'V' + str(self.current_version + 200)
             
-            column_added = False
-            while count < len(self.all_lines):
-                add_col = None
-                line = self.all_lines[count].rstrip('\n')
+        column_added = False
+        while count < len(self.all_lines):
+            add_col = None
+            line = self.all_lines[count].rstrip('\n')
 
-                if "Endpoints" in self.all_lines[count]:
-                    add_col = line + " " + new_version + '               |\n'
+            if "Endpoints" in self.all_lines[count]:
+                add_col = line + " " + new_version + '               |\n'
 
-                elif "---------" in self.all_lines[count]:
-                    add_col = line + ' :-----------------: |\n'
-                    column_added = True
+            elif "---------" in self.all_lines[count]:
+                add_col = line + ' :-----------------: |\n'
+                column_added = True
 
-                if add_col:
-                    self.all_lines[count] = add_col
-                    self.write_md()
+            if add_col:
+                self.all_lines[count] = add_col
+                self.write_md()
 
-                if column_added:
-                    break
+            if column_added:
+                break
 
-                count += 1
+            count += 1
 
-    def get_rows(self, service):
+    def get_rows(self, resource_name):
         count = 0
-        service_row_start = 0
-        service_row_end = 0
+        resource_name_row_start = 0
+        resource_name_row_end = 0
         self.load_md()
         for line in self.all_lines:
             count += 1
-            if line.startswith('|     '+service):
-                service_row_start = count
+            if line.startswith('|     '+resource_name):
+                resource_name_row_start = count
 
                 for no in range(count, len(self.all_lines)):
                     if self.all_lines[no].startswith('|     **'):
-                        service_row_end = no
+                        resource_name_row_end = no
                         break
 
-                return service_row_start, service_row_end
+                return resource_name_row_start, resource_name_row_end
 
     def get_lines(self, st_no, end_no):
             lines = list()
