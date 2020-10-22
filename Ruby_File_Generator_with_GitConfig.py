@@ -1,5 +1,5 @@
 import os
-import re, git
+import re, git  # if git module is not found, use 'pip install gitpython'
 
 api_version = 2200
 # Resources dictionary
@@ -41,7 +41,28 @@ lib_path_list = ['lib', 'oneview-sdk', 'resource']
 lib_path = str(cwd) + os.path.sep + os.path.sep.join(lib_path_list)
 spec_path_list = ['spec', 'unit', 'resource']
 spec_path = str(cwd) + os.path.sep + os.path.sep.join(spec_path_list)
-new_branch = repo.create_head('feature') # create new branch
+remote_branches = []
+for ref in repo.git.branch('-r').split('\n'):
+    remote_branches.append(ref.replace(" ", ""))
+    
+branch_present = True if branchName in remote_branches else False
+
+def checkIfBranchPresent(branchName, remote_branches):
+    num = 0
+    while True:
+        branchName = branchName + '_' + str(num)
+        num = num + 1
+        branch_present = True if branchName in remote_branches else False
+        if branch_present == False:
+            break
+    return branchName
+
+if branch_present == True:
+    branchName = checkIfBranchPresent(branchName, remote_branches)
+else:
+    pass
+
+new_branch = repo.create_head(branchName)
 new_branch.checkout()
 
 
