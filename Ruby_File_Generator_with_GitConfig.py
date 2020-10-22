@@ -41,6 +41,7 @@ lib_path_list = ['lib', 'oneview-sdk', 'resource']
 lib_path = str(cwd) + os.path.sep + os.path.sep.join(lib_path_list)
 spec_path_list = ['spec', 'unit', 'resource']
 spec_path = str(cwd) + os.path.sep + os.path.sep.join(spec_path_list)
+branchName = 'origin/feature'
 remote_branches = []
 for ref in repo.git.branch('-r').split('\n'):
     remote_branches.append(ref.replace(" ", ""))
