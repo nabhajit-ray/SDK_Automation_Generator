@@ -427,19 +427,24 @@ class WriteToEndpointsFile(object):
         return old_end_points
 
     def validate_webscrapping_data(self, lines, end_point, str):
+        self.current_version = 2000
         end_point_found = False
         for ele in lines:
             line_no = ele.get('line_no')
             line = ele.get('line')
             if line.startswith('|<sub>'):
                 ln = line.split('|')
+                ln_length = len(ln)
+                desired_length = int(((((self.current_version+200)-800)/200)+3))
                 split_module = ln[1].strip().split('<sub>')
                 module = split_module[-1].split('</sub>')[0]
-
                 if end_point == {module, ln[2].strip()}:
                     ln = line.rstrip('\n')
-                    add_col = ln + str
-                    self.all_lines[line_no] = add_col
+                    if (ln_length == desired_length):
+                        add_col = ln + str
+                        self.all_lines[line_no] = add_col
+                    else:
+                        pass
                     end_point_found = True
                     break
         if not end_point_found:
@@ -447,6 +452,7 @@ class WriteToEndpointsFile(object):
         return
 
     def add_checks(self, st_no, end_no, webscraping_data):
+        self.current_version = 2000
         lines = self.get_lines(st_no, end_no)
 
         old_end_points = self.get_old_end_points(st_no, end_no, webscraping_data)
