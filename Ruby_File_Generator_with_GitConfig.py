@@ -41,12 +41,12 @@ lib_path_list = ['lib', 'oneview-sdk', 'resource']
 lib_path = str(cwd) + os.path.sep + os.path.sep.join(lib_path_list)
 spec_path_list = ['spec', 'unit', 'resource']
 spec_path = str(cwd) + os.path.sep + os.path.sep.join(spec_path_list)
-branchName = 'origin/feature'
+branchName = 'feature'
 remote_branches = []
 for ref in repo.git.branch('-r').split('\n'):
     remote_branches.append(ref.replace(" ", ""))
     
-branch_present = True if branchName in remote_branches else False
+branch_present = True if 'origin/' + branchName in remote_branches else False
 
 def checkIfBranchPresent(branchName, remote_branches):
     num = 0
@@ -271,5 +271,5 @@ if __name__ == '__main__':
     repo.git.add(A=True)
     repo.git.commit('-m', 'PR for config changes #pr',
                     author='chebroluharika@gmail.com') # to commit changes
-    repo.git.push('--set-upstream', 'origin', new_branch)
+    repo.git.push('--set-upstream', 'origin', branchName)
     repo.close()
