@@ -1,4 +1,4 @@
-import os
+import os, shutil
 import re, git  # if git module is not found, use 'pip install gitpython'
 
 api_version = 2200
@@ -33,9 +33,13 @@ ruby_resource_dict = {'Connection Template': 'connection_template',
                       }
 
 path = os.getcwd()
+# Deleting the clone directory if exists
+if os.path.exists('ruby'):
+    shutil.rmtree('ruby', ignore_errors=True)
+
 repo = git.Repo.clone_from('https://github.com/HewlettPackard/oneview-sdk-ruby',
-                           path + '/ruby')
-os.chdir(path + '/ruby')
+                           path + os.path.sep + 'ruby')
+os.chdir(path + os.path.sep + 'ruby')
 cwd = os.getcwd()  # gets the path of current working directory(should be SDK repo path)
 lib_path_list = ['lib', 'oneview-sdk', 'resource']
 lib_path = str(cwd) + os.path.sep + os.path.sep.join(lib_path_list)
@@ -53,7 +57,7 @@ def checkIfBranchPresent(branchName, remote_branches):
     while True:
         branchName = branchName + '_' + str(num)
         num = num + 1
-        branch_present = True if branchName in remote_branches else False
+        branch_present = True if 'origin/' + branchName in remote_branches else False
         if branch_present == False:
             break
     return branchName
@@ -273,3 +277,7 @@ if __name__ == '__main__':
                     author='chebroluharika@gmail.com') # to commit changes
     repo.git.push('--set-upstream', 'origin', branchName)
     repo.close()
+    os.chdir(path) # Navigate to parent directory
+    # Delete ruby directory as cleanup
+    if os.path.exists('ruby'):
+        shutil.rmtree('ruby', ignore_errors=True)
