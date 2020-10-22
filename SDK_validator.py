@@ -9,6 +9,8 @@ import re
 from subprocess import Popen, STDOUT, PIPE
 from ansible_playbook_runner import Runner
 
+api_version = '2200'
+
 rel_dict = {'FC Networks': 'fc_networks',
             'FCoE Networks': 'fcoe_networks',
             'Ethernet Networks': 'ethernet_networks',
@@ -139,7 +141,7 @@ def ExecuteFiles():
     examples = []
     valid_sdks = ['python', 'ruby', 'go', 'ansible', 'puppet', 'chef']
     print("loaded_resources are {}".format(str(loaded_resources)))
-    val = input("Please enter SDK you want to validate(python, ansible): ")
+    val = input("Please enter SDK you want to validate(python, ansible, ruby): ")
     if val in ['ruby', 'chef', 'puppet']:
         rel_dict2 = {'Storage Volume Templates': 'volume_template',
                      'Storage Volume Attachments': 'volume_attachment',
@@ -357,7 +359,9 @@ class WriteToEndpointsFile(object):
         head_line = self.all_lines[count + 1].split()
         self.current_version = int(head_line[-2].split('V')[-1])
         new_version = 'V' + str(self.current_version + 200)
-            
+        if int(api_version) == self.current_version:
+            return
+
         column_added = False
         while count < len(self.all_lines):
             add_col = None
