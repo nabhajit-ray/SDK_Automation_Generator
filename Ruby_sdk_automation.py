@@ -153,6 +153,42 @@ def ruby_spec_extra_config_files(current_api_version, path):
     replace_api_version_file(prev_api_version, current_api_version, spec_cli_path, 'version_spec.rb')
     replace_api_version_file(prev_api_version, current_api_version, spec_helper_path, 'spec_helper.rb')
 
+    os.chdir(spec_helper_path)
+    spec_context_file = 'shared_context.rb'
+    search_string1 = "# Context for API{0} integration testing:\nRSpec.shared_context 'integration api{0} context', " \
+                     "a: :b do\n  before :all do\n    integration_context\n    $client_{0} ||= OneviewSDK::Client.new" \
+                     "($config.merge(api_version: {0}))\n    $client_{0}_synergy ||= OneviewSDK::Client.new" \
+                     "($config_synergy.merge(api_version: {0}))\n  end\nend\n".format(prev_api_version)
+
+    search_string2 = "RSpec.shared_context 'system api{0} context', a: :b do\n  before(:each) do\n    " \
+                     "load_system_properties\n    generate_clients({0})\n  end\nend\n".format(prev_api_version)
+
+    search_string3 = "  when {0}\n    $client_{0} ||= OneviewSDK::Client.new($config.merge(api_version: api_version))\n" \
+                     "    $client_{0}_synergy ||= OneviewSDK::Client.new($config_synergy.merge" \
+                     "(api_version: api_version))\n  end\n".format(prev_api_version)
+
+    f_read = open(spec_context_file).read()
+    f_read = string_merge_and_replace(search_string1, f_read, prev_api_version, current_api_version, "\n")
+    f_read = string_merge_and_replace(search_string2, f_read, prev_api_version, current_api_version, "\n")
+    f_read = string_merge_and_replace(search_string3, f_read, prev_api_version, current_api_version)
+
+    f_out = open(spec_context_file, 'w')  # open the file with the WRITE option
+    f_out.write(f_read)  # write the the changes to the file
+    f_out.close()
+
+
+def string_merge_and_replace(search_string, main_string, prev_api_version, current_api_version, append_string=""):
+    """
+    Searches for a string in main string, if not found merge it with search string and appends to main string
+    """
+    search_string_new = search_string.replace(str(prev_api_version), str(current_api_version))
+    replace_string = search_string + append_string + search_string_new
+    print(replace_string)
+    if search_string_new not in main_string and search_string in main_string:
+        main_string = main_string.replace(str(search_string), str(replace_string))
+        print("Appending shared context for '{}' api version".format(current_api_version))
+    return main_string
+
 
 def create_folder_structure(path, old_directory, new_directory):
     """

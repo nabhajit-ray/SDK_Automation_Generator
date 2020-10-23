@@ -165,7 +165,7 @@ def modify_spec_helper(current_api_version, path):
     spec_helper_file = 'spec_helper.rb'
     search_string1 = "allow_any_instance_of(OneviewSDK::Client).to receive(:appliance_api_version).and_return({})".format(current_api_version)
     replace_string1 = search_string1.replace(str(current_api_version), str(next_api_version))
-    search_string2 = "  let(:client{}) do\n    OneviewSDK::Client.new(url: 'https://oneview.example.com', user: 'Administrator', password: 'secret123', api_version: {})\n  end\n".format(prev_api_version, prev_api_version)
+    search_string2 = "  let(:client{0}) do\n    OneviewSDK::Client.new(url: 'https://oneview.example.com', user: 'Administrator', password: 'secret123', api_version: {0})\n  end\n".format(prev_api_version)
     search_string3 = search_string2.replace(str(prev_api_version), str(current_api_version))
     replace_string2 = search_string2 + "\n" + search_string3
     f_read = open(spec_helper_file).read()
