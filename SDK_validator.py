@@ -55,7 +55,7 @@ class DataFromWebScraping(object):
         """
         Scrapping data for list of endpoints from API docs.
         """
-        URL = "https://techlibrary.hpe.com/docs/enterprise/servers/oneview5.0/cicf-api/en/rest/" + self.replaced_ele + ".html.js"
+        URL = "https://techlibrary.hpe.com/docs/enterprise/servers/oneview5.3/cicf-api/en/rest/" + self.replaced_ele + ".html.js"
         r = requests.get(URL)
 
         soup = BeautifulSoup(r.content, 'html5lib')  # If this line causes an error, run 'pip install html5lib' or install html5lib
@@ -287,7 +287,6 @@ class WriteToChangeLog(object):
 
     def write_data(self):
         rel_modules = []
-        api_version = '2200'
         oneview_api_version = 'OneView ' + 'v' + str(self.added_integer)
         try:
             for ele in self.rel_list:
@@ -328,11 +327,10 @@ class WriteToChangeLog(object):
 resource_names = []
 
 class WriteToEndpointsFile(object):
-    def __init__(self, product_table_name, new_version, executed_files, is_ansible):
+    def __init__(self, product_table_name, executed_files, is_ansible):
         self.line_nos = {}
         self.res_lines = {}
         self.product_table_name = product_table_name
-        self.new_version = new_version
         self.all_lines = None
         self.executed_files = executed_files
         self.is_ansible = is_ansible
@@ -347,7 +345,7 @@ class WriteToEndpointsFile(object):
         file = open('endpoints-support.md')
         self.all_lines = file.readlines()
 
-    def add_column(self, product_table_name, new_version):
+    def add_column(self, product_table_name):
 
         count = 0
         self.load_md()
@@ -431,7 +429,7 @@ class WriteToEndpointsFile(object):
         return old_end_points
 
     def validate_webscrapping_data(self, lines, end_point, str):
-        self.current_version = 2000
+        self.current_version = int(api_version) - 200
         end_point_found = False
         for ele in lines:
             line_no = ele.get('line_no')
@@ -456,7 +454,6 @@ class WriteToEndpointsFile(object):
         return
 
     def add_checks(self, st_no, end_no, webscraping_data):
-        self.current_version = 2000
         lines = self.get_lines(st_no, end_no)
 
         old_end_points = self.get_old_end_points(st_no, end_no, webscraping_data)
@@ -468,19 +465,19 @@ class WriteToEndpointsFile(object):
             new_end_point = self.validate_webscrapping_data(lines, end_point, '  :white_check_mark:   |\n')
             if new_end_point:
                 new_end_points.append(new_end_point)
+# below code is to add new endpoints into endpoints-support.md file and its commented, parked aside 
+        # for end_point in new_end_points:
+        #     if (len(list(end_point)[1]) > 5):
+        #         add_col = '|<sub>'+list(end_point)[1]+'</sub>                                                      |'+' '+list(end_point)[0]+'      '+ '|  :heavy_minus_sign:   '*int(((((self.current_version+200)-800)/200)-1))+'|  :white_check_mark:   |\n'
+        #     else:
+        #         add_col = '|<sub>'+list(end_point)[0]+'</sub>                                                      |'+' '+list(end_point)[1]+'      '+ '|  :heavy_minus_sign:   '*int(((((self.current_version+200)-800)/200)-1))+'|  :white_check_mark:   |\n'            
+        #     line_no = lines[-1].get('line_no')
+        #     self.all_lines[line_no] = self.all_lines[line_no]+add_col
+        #     self.write_md()
+        #     self.load_md()
+        #     lines.append(dict({'line_no':line_no+1, 'line':self.all_lines[line_no+1]}))
 
-        for end_point in new_end_points:
-            if (len(list(end_point)[1]) > 5):
-                add_col = '|<sub>'+list(end_point)[1]+'</sub>                                                      |'+' '+list(end_point)[0]+'      '+ '|  :heavy_minus_sign:   '*int(((((self.current_version+200)-800)/200)-1))+'|  :white_check_mark:   |\n'
-            else:
-                add_col = '|<sub>'+list(end_point)[0]+'</sub>                                                      |'+' '+list(end_point)[1]+'      '+ '|  :heavy_minus_sign:   '*int(((((self.current_version+200)-800)/200)-1))+'|  :white_check_mark:   |\n'            
-            line_no = lines[-1].get('line_no')
-            self.all_lines[line_no] = self.all_lines[line_no]+add_col
-            self.write_md()
-            self.load_md()
-            lines.append(dict({'line_no':line_no+1, 'line':self.all_lines[line_no+1]}))
-
-    def main(self, new_version):
+    def main(self):
         i = 0
         if self.is_ansible == True:
             exe = modifyExecutedFiles(self.executed_files)
@@ -492,10 +489,7 @@ class WriteToEndpointsFile(object):
             resource = list(rel_dict.keys())[list(rel_dict.values()).index(ele)]
             formatted_resource_name = '**' + resource + '**'
             resource_names.append(formatted_resource_name)
-        if new_version == True:
-            self.add_column(self.product_table_name, new_version)
-        else:
-            print("no col addition in endpoints file as there is no new APIVersion")
+        self.add_column(self.product_table_name)
         for resource_name in resource_names:
             webscraping_data = DataFromWebScraping(self.executed_files[i])
             data_returned_from_web_scraping = webscraping_data.data_scraped()
@@ -543,7 +537,7 @@ if __name__ == '__main__':
         print("Please proceed with writing to endpoints file")
     val2 = input("Do you want to edit endpoints-support.md: ")
     if val2 in ['y', 'yes', '']:
-        read_md_obj = WriteToEndpointsFile('## HPE OneView', True, executed_files, is_ansible)
-        read_md_obj.main(True)
+        read_md_obj = WriteToEndpointsFile('## HPE OneView', executed_files, is_ansible)
+        read_md_obj.main()
     else:
          print("Please proceed with editing endpoints file")
