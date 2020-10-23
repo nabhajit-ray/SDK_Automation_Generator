@@ -33,13 +33,14 @@ ruby_resource_dict = {'Connection Template': 'connection_template',
                       }
 
 path = os.getcwd()
+clone_dir = 'ruby'
 # Deleting the clone directory if exists
-if os.path.exists('ruby'):
-    shutil.rmtree('ruby', ignore_errors=True)
+if os.path.exists(clone_dir):
+    shutil.rmtree(clone_dir, ignore_errors=True)
 
 repo = git.Repo.clone_from('https://github.com/HewlettPackard/oneview-sdk-ruby',
-                           path + os.path.sep + 'ruby')
-os.chdir(path + os.path.sep + 'ruby')
+                           path + os.path.sep + clone_dir)
+os.chdir(path + os.path.sep + clone_dir)
 cwd = os.getcwd()  # gets the path of current working directory(should be SDK repo path)
 lib_path_list = ['lib', 'oneview-sdk', 'resource']
 lib_path = str(cwd) + os.path.sep + os.path.sep.join(lib_path_list)
@@ -52,17 +53,19 @@ for ref in repo.git.branch('-r').split('\n'):
     
 branch_present = True if 'origin/' + branchName in remote_branches else False
 
+
 def checkIfBranchPresent(branchName, remote_branches):
     num = 0
     while True:
         branchName = branchName + '_' + str(num)
         num = num + 1
         branch_present = True if 'origin/' + branchName in remote_branches else False
-        if branch_present == False:
+        if branch_present is False:
             break
     return branchName
 
-if branch_present == True:
+
+if branch_present is True:
     branchName = checkIfBranchPresent(branchName, remote_branches)
 else:
     pass
@@ -279,5 +282,5 @@ if __name__ == '__main__':
     repo.close()
     os.chdir(path) # Navigate to parent directory
     # Delete ruby directory as cleanup
-    if os.path.exists('ruby'):
-        shutil.rmtree('ruby', ignore_errors=True)
+    if os.path.exists(clone_dir):
+        shutil.rmtree(clone_dir, ignore_errors=True)
