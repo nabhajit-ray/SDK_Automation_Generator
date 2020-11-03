@@ -143,9 +143,9 @@ def ExecuteFiles():
     print("loaded_resources are {}".format(str(loaded_resources)))
     val = input("Please enter SDK you want to validate(python, ansible, ruby): ")
     if val in ['ruby', 'chef', 'puppet']:
-        rel_dict2 = {'Storage Volume Templates': 'volume_template',
-                     'Storage Volume Attachments': 'volume_attachment',
-                     'Certificates Server': 'server_certificate'
+        rel_dict2 = {'Storage Volume Templates': 'volume_templates',
+                     'Storage Volume Attachments': 'volume_attachments',
+                     'Certificates Server': 'server_certificates'
                     }
         rel_dict.update(rel_dict2)
     else:
@@ -177,6 +177,7 @@ def ExecuteFiles():
                     exec(compile(open(example_file_with_extension).read(), example_file_with_extension, 'exec'))
                     success_files.append(example)
                 elif val == 'ruby' and example not in ['tasks', 'scopes', 'interconnect_types']:
+                    is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "ruby {}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -186,6 +187,7 @@ def ExecuteFiles():
                     else:
                         failed_files.append(example)
                 elif val == 'go':
+                    is_ansible = False
                     example_file_with_extension = example_file + str('.go')
                     cmd = "go run {}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -195,6 +197,7 @@ def ExecuteFiles():
                     else:
                         failed_files.append(example)
                 elif val == 'puppet'and example not in ['tasks', 'scopes', 'interconnect_types']:
+                    is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.pp')
                     cmd = "puppet apply --modulepath={}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -204,6 +207,7 @@ def ExecuteFiles():
                     else:                                                                                                                                                                                          
                         failed_files.append(example)
                 elif val == 'chef'and example not in ['tasks', 'scopes', 'interconnect_types']:
+                    is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "chef client -z -o oneview::{}".format(example)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
