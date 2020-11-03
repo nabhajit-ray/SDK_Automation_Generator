@@ -165,7 +165,7 @@ def ruby_spec_extra_config_files(current_api_version, path):
 
     search_string3 = "  when {0}\n    $client_{0} ||= OneviewSDK::Client.new($config.merge(api_version: api_version))\n" \
                      "    $client_{0}_synergy ||= OneviewSDK::Client.new($config_synergy.merge" \
-                     "(api_version: api_version))\n  end\n".format(prev_api_version)
+                     "(api_version: api_version))\n".format(prev_api_version)
 
     f_read = open(spec_context_file).read()
     f_read = string_merge_and_replace(search_string1, f_read, prev_api_version, current_api_version, "\n")
