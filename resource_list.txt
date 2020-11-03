@@ -15,14 +15,14 @@ Interconnect Types
 Interconnects
 Logical Enclosures
 Logical Interconnects
+Uplink Sets
 Server Hardware Types
 Server Hardware
-Server Profile Templates
-Server Profiles
-Hypervisor Cluster Profiles
-Storage Pools
 Storage Systems
+Storage Pools
 Storage Volume Templates
-Storage Volume Attachments
 Volumes
-Uplink Sets
+Server Profile Templates
+Hypervisor Cluster Profiles
+Server Profiles
+Storage Volume Attachments
