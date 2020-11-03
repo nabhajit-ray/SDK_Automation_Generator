@@ -145,7 +145,8 @@ def ExecuteFiles():
     if val in ['ruby', 'chef', 'puppet']:
         rel_dict2 = {'Storage Volume Templates': 'volume_templates',
                      'Storage Volume Attachments': 'volume_attachments',
-                     'Certificates Server': 'server_certificates'
+                     'Certificates Server': 'server_certificates',
+                     'Server Hardware': 'server_hardwares',
                     }
         rel_dict.update(rel_dict2)
     else:
@@ -180,7 +181,7 @@ def ExecuteFiles():
                     is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "ruby {}".format(example_file_with_extension)
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                     output, errors = p.communicate()
                     if output is not None:
                         success_files.append(example)
@@ -190,7 +191,7 @@ def ExecuteFiles():
                     is_ansible = False
                     example_file_with_extension = example_file + str('.go')
                     cmd = "go run {}".format(example_file_with_extension)
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                     output, errors = p.communicate()
                     if output is not None:
                         success_files.append(example)
@@ -200,7 +201,7 @@ def ExecuteFiles():
                     is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.pp')
                     cmd = "puppet apply --modulepath={}".format(example_file_with_extension)
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                     output, errors = p.communicate()
                     if output is not None:
                         success_files.append(example)
@@ -210,7 +211,7 @@ def ExecuteFiles():
                     is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "chef client -z -o oneview::{}".format(example)
-                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                     output, errors = p.communicate()
                     if output is not None:
                         success_files.append(example)
