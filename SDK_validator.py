@@ -177,7 +177,7 @@ def ExecuteFiles():
                     print(">> Executing {}..".format(example))
                     exec(compile(open(example_file_with_extension).read(), example_file_with_extension, 'exec'))
                     success_files.append(example)
-                elif val == 'ruby' and example not in ['tasks', 'scopes', 'interconnect_types']:
+                elif val == 'ruby' and example not in ['tasks', 'interconnect_types']:
                     is_ansible = False
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "ruby {}".format(example_file_with_extension)
