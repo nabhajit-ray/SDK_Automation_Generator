@@ -182,9 +182,16 @@ def ruby_spec_extra_config_files(current_api_version, path):
     replace_api_version_file(current_api_version, next_api_version, spec_unit_path, 'resource_spec.rb')
     replace_api_version_file(current_api_version, next_api_version, spec_unit_path, 'client_spec.rb')
 
+    # client_spec.rb has both current and previous api versions, so perform one more replace operation
+    replace_api_version_file(prev_api_version, current_api_version, spec_unit_path, 'client_spec.rb')
+
     # Replaces previous api version to current api version
     replace_api_version_file(prev_api_version, current_api_version, spec_cli_path, 'version_spec.rb')
     replace_api_version_file(prev_api_version, current_api_version, spec_helper_path, 'spec_helper.rb')
+
+    # Replaces previous api version to current api version in files which have mixed api versions
+    search_str1 = "The API999 method or resource does not exist for OneView API version {}".format(prev_api_version)
+    string_search_and_replace(search_str1, prev_api_version, current_api_version, spec_unit_path, sdk_spec_file)
 
     os.chdir(spec_helper_path)
     spec_context_file = 'shared_context.rb'
@@ -208,6 +215,21 @@ def ruby_spec_extra_config_files(current_api_version, path):
     f_out = open(spec_context_file, 'w')  # open the file with the WRITE option
     f_out.write(f_read)  # write the the changes to the file
     f_out.close()
+
+
+def string_search_and_replace(search_string, prev_api_version, current_api_version, path, filename):
+    """
+    Searches for a search string in file, if not found then replaces search string with replace string
+    """
+    os.chdir(path) # switches the python environment to resource directory
+    f_read = open(filename).read()
+    replace_string = search_string.replace(str(prev_api_version), str(current_api_version))
+    if replace_string not in f_read and search_string in f_read:
+        f_read = f_read.replace(str(search_string), str(replace_string))
+        f_out = open(filename, 'w')  # open the file with the WRITE option
+        print("Replaced api version '{}' to '{}' in file - '{}'".format(prev_api_version, current_api_version, filename))
+        f_out.write(f_read)  # write the the changes to the file
+        f_out.close()
 
 
 def string_merge_and_replace(search_string, main_string, prev_api_version, current_api_version, append_string=""):
@@ -272,7 +294,7 @@ def replace_api_version_file(prev_api_version, current_api_version, path, filena
     if str(current_api_version) not in f_read and str(prev_api_version) in f_read:
         f_read = f_read.replace(str(prev_api_version), str(current_api_version))
         f_out = open(filename, 'w')  # open the file with the WRITE option
-        print("Replaced api version to '{}' in file - '{}'".format(current_api_version, filename))
+        print("Replaced api version '{}' to '{}' in file - '{}'".format(prev_api_version, current_api_version, filename))
         f_out.write(f_read)  # write the the changes to the file
         f_out.close()
 
