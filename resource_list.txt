@@ -7,9 +7,9 @@ Certificates Server
 Hypervisor Managers
 Tasks
 Scopes
-Enclosures
 Logical Interconnect Groups
 Enclosure Groups
+Enclosures
 Firmware Drivers
 Interconnect Types
 Interconnects
