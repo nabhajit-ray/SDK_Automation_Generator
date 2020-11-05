@@ -131,9 +131,8 @@ def modifyExecutedFiles(executed_files):
         exe.append(executed_file)
     return exe
 
-is_ansible = False
-
 def ExecuteFiles():
+    is_ansible = False
     loaded_resources = LoadResourcesFromFile()
     cwd = os.getcwd()
     failed_files = []
@@ -177,13 +176,15 @@ def ExecuteFiles():
                     print(">> Executing {}..".format(example))
                     exec(compile(open(example_file_with_extension).read(), example_file_with_extension, 'exec'))
                     success_files.append(example)
-                elif val == 'ruby' and example not in ['tasks', 'scopes', 'interconnect_types']:
-                    is_ansible = False
+                elif val == 'ruby' and example not in ['tasks', 'interconnect_types']:
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "ruby {}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    p.wait()
+                    contents = p.stdout.read()
+                    print(contents)
                     output, errors = p.communicate()
-                    if output is not None:
+                    if errors is  None:
                         success_files.append(example)
                     else:
                         failed_files.append(example)
@@ -225,7 +226,7 @@ def ExecuteFiles():
                 failed_files.append(example)
         sys.stdout = original
         print("success files are {}".format(str(success_files)))
-        return success_files, is_ansible
+        return success_files, is_ansible, val
         f.close()
 
     else:
@@ -246,10 +247,15 @@ class WriteToChangeLog(object):
     :param rel_version:
     :return:
     """
-    def __init__(self, rel_list):
+    def __init__(self, rel_list, sdk):
         self.rel_list = rel_list
+        self.sdk = sdk
+        if self.sdk == 'ruby':
+            path_parent = os.path.dirname(os.getcwd())
+            os.chdir(path_parent)
         path_parent = os.path.dirname(os.getcwd())
         os.chdir(path_parent)
+        print(os.getcwd())
         f = open("CHANGELOG.md", "r")
         first_line = f.readline()
         file_name = 'CHANGELOG.md'
@@ -332,7 +338,7 @@ class WriteToChangeLog(object):
 resource_names = []
 
 class WriteToEndpointsFile(object):
-    def __init__(self, product_table_name, executed_files, is_ansible):
+    def __init__(self, product_table_name, executed_files, is_ansible, sdk):
         self.line_nos = {}
         self.res_lines = {}
         self.product_table_name = product_table_name
@@ -340,6 +346,7 @@ class WriteToEndpointsFile(object):
         self.executed_files = executed_files
         self.is_ansible = is_ansible
         self.current_version = None
+        self.sdk = sdk
 
     def write_md(self):
         file = open('endpoints-support.md', 'w')
@@ -520,7 +527,7 @@ def removeLogFiles(val):
 
 
 if __name__ == '__main__':
-    executed_files, is_ansible = ExecuteFiles()
+    executed_files, is_ansible, sdk = ExecuteFiles()
     resources_from_textfile = LoadResourcesFromFile()
     val4 = input('Please provide value as true to reside log files, else provide false: ')
     if val4 == False:
@@ -529,20 +536,23 @@ if __name__ == '__main__':
         pass
     val1 = input("Do you want to write data to CHANGELOG.md: ")
     if val1 in ['y', 'yes', '']:
-        if executed_files is not None and len(executed_files) != len(resources_from_textfile):
+        if len(executed_files) != len(resources_from_textfile):
             val3 = input("There are few failed resources, even then do you want to write data to CHANGELOG.md: ")
             if val3 in ['y','yes', '']:
-                write_obj = WriteToChangeLog(executed_files)
+                write_obj = WriteToChangeLog(executed_files, sdk)
                 write_obj.write_data()
             else:
                 print("Please check failed_resources list and procees with writing to CHANGELOG with successfully executed files")
         else:
-            pass
+            print("Started writing to CHANGELOG.md")
+            write_obj = WriteToChangeLog(executed_files, sdk)
+            write_obj.write_data()
+            print("Completed writing to CHANGELOG.md")
     else:
         print("Please proceed with writing to endpoints file")
     val2 = input("Do you want to edit endpoints-support.md: ")
     if val2 in ['y', 'yes', '']:
-        read_md_obj = WriteToEndpointsFile('## HPE OneView', executed_files, is_ansible)
+        read_md_obj = WriteToEndpointsFile('## HPE OneView', executed_files, is_ansible, sdk)
         read_md_obj.main()
     else:
          print("Please proceed with editing endpoints file")
