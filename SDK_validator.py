@@ -99,6 +99,8 @@ def runAnsiblePlaybooks(success_files, failed_files):
     ansible_modules_list = open('ansible_modules_list', 'r')
     resources_for_ansible = ansible_modules_list.read().splitlines()
     ansible_modules_list.close()
+    loaded_resources_for_ansible = modifyExecutedFiles(resources_for_ansible)
+    print("loaded_resources for ansible are {}".format(str(loaded_resources_for_ansible)))
     try:
         for resource_for_ansible in resources_for_ansible:
             result = Runner(['/etc/ansible/hosts'], resource_for_ansible).run()
@@ -129,18 +131,18 @@ def modifyExecutedFiles(executed_files):
         executed_file = executed_file.replace('.yml', '').replace('oneview_', '').replace('_facts', '')
         executed_file = executed_file + 's'
         exe.append(executed_file)
-    return exe
+    return list(set(exe))
 
-def ExecuteFiles():
+def ExecuteFiles(selected_sdk):
     is_ansible = False
-    loaded_resources = LoadResourcesFromFile()
+    if selected_sdk not in ['ansible']:
+        loaded_resources = LoadResourcesFromFile()
+        print("loaded_resources are {}".format(str(loaded_resources)))
     cwd = os.getcwd()
     failed_files = []
     success_files = []
     examples = []
     valid_sdks = ['python', 'ruby', 'go', 'ansible', 'puppet', 'chef']
-    print("loaded_resources are {}".format(str(loaded_resources)))
-    val = input("Please enter SDK you want to validate(python, ansible, ruby): ")
     if val in ['ruby', 'chef', 'puppet']:
         rel_dict2 = {'Storage Volume Templates': 'volume_templates',
                      'Storage Volume Attachments': 'volume_attachments',
@@ -473,7 +475,7 @@ class WriteToEndpointsFile(object):
             new_end_point = self.validate_webscrapping_data(lines, end_point, '  :white_check_mark:   |\n')
             if new_end_point:
                 new_end_points.append(new_end_point)
-# below code is to add new endpoints into endpoints-support.md file and its commented, parked aside 
+        # below code is to add new endpoints into endpoints-support.md file and its commented, parked aside 
         # for end_point in new_end_points:
         #     if (len(list(end_point)[1]) > 5):
         #         add_col = '|<sub>'+list(end_point)[1]+'</sub>                                                      |'+' '+list(end_point)[0]+'      '+ '|  :heavy_minus_sign:   '*int(((((self.current_version+200)-800)/200)-1))+'|  :white_check_mark:   |\n'
@@ -523,7 +525,8 @@ def removeLogFiles(val):
 
 
 if __name__ == '__main__':
-    executed_files, is_ansible, sdk = ExecuteFiles()
+    selected_sdk = input("Please enter SDK you want to validate(python, ansible, ruby): ")
+    executed_files, is_ansible, sdk = ExecuteFiles(selected_sdk)
     resources_from_textfile = LoadResourcesFromFile()
     val4 = input('Please provide value as true to reside log files, else provide false: ')
     if val4 == False:
