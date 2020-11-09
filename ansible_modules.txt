@@ -43,10 +43,10 @@ oneview_storage_system.yml
 oneview_storage_system_facts.yml
 oneview_storage_volume_template.yml
 oneview_storage_volume_template_facts.yml
+oneview_volume.yml
+oneview_volume_facts.yml
 oneview_storage_volume_attachment.yml
 oneview_storage_volume_attachment_facts.yml
-oneview_storage_volume.yml
-oneview_storage_volume_facts.yml
 oneview_task_facts.yml
 oneview_uplink_set.yml
 oneview_uplink_set_facts.yml
