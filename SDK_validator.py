@@ -193,8 +193,11 @@ def ExecuteFiles(selected_sdk):
                     example_file_with_extension = example_file + str('.go')
                     cmd = "go run {}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    p.wait()
+                    contents = p.stdout.read()
+                    print(contents)
                     output, errors = p.communicate()
-                    if output is not None:
+                    if errors is  None:
                         success_files.append(example)
                     else:
                         failed_files.append(example)
@@ -202,17 +205,23 @@ def ExecuteFiles(selected_sdk):
                     example_file_with_extension = example_file[:-1] + str('.pp')
                     cmd = "puppet apply --modulepath={}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    p.wait()
+                    contents = p.stdout.read()
+                    print(contents)
                     output, errors = p.communicate()
-                    if output is not None:
+                    if errors is  None:
                         success_files.append(example)
-                    else:                                                                                                                                                                                          
+                    else:
                         failed_files.append(example)
                 elif val == 'chef'and example not in ['tasks', 'scopes', 'interconnect_types']:
                     example_file_with_extension = example_file[:-1] + str('.rb')
                     cmd = "chef client -z -o oneview::{}".format(example)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    p.wait()
+                    contents = p.stdout.read()
+                    print(contents)
                     output, errors = p.communicate()
-                    if output is not None:
+                    if errors is  None:
                         success_files.append(example)
                     else:
                         failed_files.append(example)
