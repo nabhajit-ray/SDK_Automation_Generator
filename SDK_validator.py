@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 import re
 from subprocess import Popen, STDOUT, PIPE
-#from ansible_playbook_runner import Runner
+from ansible_playbook_runner import Runner
 
 api_version = '2200'
 
