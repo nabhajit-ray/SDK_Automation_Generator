@@ -7,7 +7,7 @@ import os
 from datetime import datetime
 import re
 from subprocess import Popen, STDOUT, PIPE
-from ansible_playbook_runner import Runner
+#from ansible_playbook_runner import Runner
 
 api_version = '2200'
 
@@ -229,11 +229,30 @@ def ExecuteFiles(selected_sdk):
                     for i in range(3):
                         if i == 0:
                             copy = "cp " + example_loc + "main.tf " + cwd
-                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-                            _, copy_errors = copy_p.communicate()
-                            if  copy_errors is None:
+                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+                            op, copy_errors = copy_p.communicate()
+                            print(copy_p.returncode )
+                            if copy_p.returncode != 0:
+                                print("Error Detected", copy_errors)
+                                continue
+                            else:
+                                if example == "enclosures" or example == "logical_interconnects":
+                                    print("executing import: ", example)
+                                    if example == "enclosures":
+                                        enc_import = subprocess.Popen("terraform import oneview_enclosure.import_enc  0000A66101", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, errors = enc_import.communicate()
+                                    else:
+                                        li_import  = subprocess.Popen("terraform import oneview_logical_interconnect.logical_interconnect  Auto-LE-Auto-LIG", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, errors = li_import.communicate()
+                                    if errors is None:
+                                        success_files.append(example + " main.tf")
+                                    else:
+                                        failed_files.append(example + " main.tf")
+                                    os.remove(cwd + "/main.tf")
+                                    continue
                                 plan_cmd = "terraform plan"
                                 print("executing main.tf plan: ", example)
+                                _ = subprocess.Popen("terraform init", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                                 plan_p = subprocess.Popen(plan_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                                 plan_p.wait()
                                 if plan_p.poll() == 0:
@@ -255,13 +274,16 @@ def ExecuteFiles(selected_sdk):
                                 else:
                                     os.remove(cwd + "/main.tf")
                                     failed_files.append(example + " main.tf plan_p.poll is != 0, ") 
-                            else:
-                                failed_files.append(example + " failed to copy main file, " )
                         elif i == 1:
                             copy = "cp " + example_loc + "update_resource.tf " + cwd
-                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-                            _, copy_errors = copy_p.communicate()
-                            if  copy_errors is None:
+                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+                            op, copy_errors = copy_p.communicate()
+                            print( copy_p.returncode, copy_errors, "Copy Errors")
+                            if copy_p.returncode != 0:
+                                print("Error Detected", copy_errors)
+                                failed_files.append(example + " failed to copy update_resource file, ")
+                                continue
+                            else:
                                 print("executing update_resource.tf plan: ", example)
                                 plan_cmd = "terraform plan"
                                 plan_p = subprocess.Popen(plan_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
@@ -284,15 +306,17 @@ def ExecuteFiles(selected_sdk):
                                         failed_files.append(example + " update_resource.tf")
                                 else:
                                     os.remove(cwd + "/update_resource.tf")
-                                    failed_files.append(example + " update_resource.tf the plan_p.poll is != 0, ") 
-                            else:
-                                failed_files.append(example + " failed to copy update_resource file, ")
+                                    failed_files.append(example + " update_resource.tf the plan_p.poll is != 0, ")
                         else:
                             copy = "cp " + example_loc + "data_source.tf " + cwd
                             copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                             _, copy_errors = copy_p.communicate()
                             if  copy_errors is None:
                                 print("executing data_source.tf plan: ", example) 
+                                if os.path.exists(cwd + "/terraform.tfstate"):
+                                    os.remove( cwd + "/terraform.tfstate")
+                                if os.path.exists(cwd + "/terraform.tfstate.backup"):
+                                    os.remove(cwd + "/terraform.tfstate.backup")
                                 plan_cmd = "terraform plan"
                                 plan_p = subprocess.Popen(plan_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                                 plan_p.wait()
@@ -305,6 +329,9 @@ def ExecuteFiles(selected_sdk):
                                         apply_p.wait()
                                         _, apply_errors = apply_p.communicate()
                                         os.remove(cwd + "/data_source.tf")
+                                        os.remove( cwd + "/terraform.tfstate")
+                                        if os.path.exists(cwd + "/terraform.tfstate.backup"):
+                                            os.remove(cwd + "/terraform.tfstate.backup")
                                         if apply_errors != None:
                                             failed_files.append(example + " data_source.tf")
                                         else:
@@ -317,13 +344,6 @@ def ExecuteFiles(selected_sdk):
                                     failed_files.append(example + " data_source.tf the plan_p.poll is != 0, ") 
                             else:
                                 failed_files.append(example + " failed to copy data_source file ")
-                    '''contents = p.stdout.read()
-                    print(contents)
-                    output, errors = p.communicate()
-                    if errors is  None:
-                        success_files.append(example)
-                    else:
-                        failed_files.append(example)'''
                 elif val == 'puppet'and example not in ['tasks', 'scopes', 'interconnect_types']:
                     example_file_with_extension = example_file[:-1] + str('.pp')
                     cmd = "puppet apply --modulepath={}".format(example_file_with_extension)

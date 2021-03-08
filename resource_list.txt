@@ -1,4 +1,5 @@
 Ethernet Networks
+Scopes
 FC Networks
 FCoE Networks
 Connection Templates
@@ -6,7 +7,6 @@ Network Sets
 Certificates Server
 Hypervisor Managers
 Tasks
-Scopes
 Logical Interconnect Groups
 Enclosure Groups
 Enclosures
@@ -15,6 +15,7 @@ Interconnect Types
 Interconnects
 Logical Enclosures
 Logical Interconnects
+
 Uplink Sets
 Server Hardware Types
 Server Hardware
