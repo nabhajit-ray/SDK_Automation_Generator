@@ -236,13 +236,16 @@ def ExecuteFiles(selected_sdk):
                                 print("Error Detected", copy_errors)
                                 continue
                             else:
-                                if example == "enclosures" or example == "logical_interconnects":
+                                if example == "enclosures" or example == "logical_interconnects" or example == "storage_pools":
                                     print("executing import: ", example)
                                     if example == "enclosures":
-                                        enc_import = subprocess.Popen("terraform import oneview_enclosure.import_enc  0000A66101", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        enc_import = subprocess.Popen("terraform import oneview_enclosure.import_enc 0000A66101", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                                         _, errors = enc_import.communicate()
+                                    elif example == "storage_pools":
+                                        ss_import = subprocess.Popen("terraform import oneview_storage_pool.storage_pool CPG-SSD-AO", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, errors = ss_import.communicate()
                                     else:
-                                        li_import  = subprocess.Popen("terraform import oneview_logical_interconnect.logical_interconnect  Auto-LE-Auto-LIG", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        li_import  = subprocess.Popen("terraform import oneview_logical_interconnect.logical_interconnect Auto-LE-Auto-LIG", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
                                         _, errors = li_import.communicate()
                                     if errors is None:
                                         success_files.append(example + " main.tf")
@@ -278,7 +281,7 @@ def ExecuteFiles(selected_sdk):
                             copy = "cp " + example_loc + "update_resource.tf " + cwd
                             copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
                             op, copy_errors = copy_p.communicate()
-                            print( copy_p.returncode, copy_errors, "Copy Errors")
+                            print( copy_p.returncode, copy_errors, "No Copy Errors")
                             if copy_p.returncode != 0:
                                 print("Error Detected", copy_errors)
                                 failed_files.append(example + " failed to copy update_resource file, ")
