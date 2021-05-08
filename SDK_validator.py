@@ -137,13 +137,13 @@ def ExecuteFiles(selected_sdk):
     is_ansible = False
     if selected_sdk not in ['ansible']:
         loaded_resources = LoadResourcesFromFile()
-        print("loaded_resources are {}".format(str(loaded_resources)))
+        print("loaded_resources are {}".format(str(loaded_resources)))     
     cwd = os.getcwd()
     failed_files = []
     success_files = []
     examples = []
     val = selected_sdk
-    valid_sdks = ['python', 'ruby', 'go', 'ansible', 'puppet', 'chef']
+    valid_sdks = ['python', 'ruby', 'go', 'ansible', 'puppet', 'chef', 'terraform']
     if val in ['ruby', 'chef', 'puppet']:
         rel_dict2 = {'Storage Volume Templates': 'volume_templates',
                      'Storage Volume Attachments': 'volume_attachments',
@@ -202,6 +202,148 @@ def ExecuteFiles(selected_sdk):
                         success_files.append(example)
                     else:
                         failed_files.append(example)
+                elif val == 'terraform':
+                    ''' value_updated = input("\nPlease provide \"true\" as input if below mentioned example have varaiable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
+                    if value_updated.lower() == 'false':
+                    sys.exit()'''
+                    build_cmd = "go build -o terraform-provider-oneview"
+                    moving_binary_cmd1 = "mkdir -p ~/.terraform.d/plugins/"
+                    moving_binary_cmd2 = "mv terraform-provider-oneview ~/.terraform.d/plugins/"
+                    build = subprocess.Popen(build_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    build.wait()
+                    if build.poll() == 0:
+                        build = subprocess.Popen(moving_binary_cmd1, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                        build = subprocess.Popen(moving_binary_cmd2, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    build_output, build_errors = build.communicate()
+                    if build_errors:
+                        print(build_errors)
+                        sys.exit()
+                    example_loc = cwd + '/examples/' + example + '/'
+                    init_cmd = "terraform init"
+                    init_p = subprocess.Popen(init_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                    print("running terraform init")
+                    init_p.wait()
+                    for i in range(3):
+                        if i == 0:
+                            copy = "cp " + example_loc + "main.tf " + cwd
+                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+                            op, copy_errors = copy_p.communicate()
+                            print(copy_p.returncode )
+                            if copy_p.returncode != 0:
+                                print("Error Detected", copy_errors)
+                                continue
+                            else:
+                                if example == "enclosures" or example == "logical_interconnects" or example == "storage_pools":
+                                    print("executing import: ", example)
+                                    if example == "enclosures":
+                                        enc_import = subprocess.Popen("terraform import oneview_enclosure.import_enc 0000A66101", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, errors = enc_import.communicate()
+                                    elif example == "storage_pools":
+                                        ss_import = subprocess.Popen("terraform import oneview_storage_pool.storage_pool CPG-SSD-AO", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, errors = ss_import.communicate()
+                                    else:
+                                        li_import  = subprocess.Popen("terraform import oneview_logical_interconnect.logical_interconnect Auto-LE-Auto-LIG", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, errors = li_import.communicate()
+                                    if errors is None:
+                                        success_files.append(example + " main.tf")
+                                    else:
+                                        failed_files.append(example + " main.tf")
+                                    os.remove(cwd + "/main.tf")
+                                    continue
+                                plan_cmd = "terraform plan"
+                                print("executing main.tf plan: ", example)
+                                _ = subprocess.Popen("terraform init", stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                plan_p = subprocess.Popen(plan_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                plan_p.wait()
+                                if plan_p.poll() == 0:
+                                    _, plan_errors = plan_p.communicate()
+                                    if plan_errors is None:
+                                        apply_cmd = "terraform apply --auto-approve"
+                                        print("executing main.tf apply: ", example)
+                                        apply_p = subprocess.Popen(apply_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        _, apply_errors = apply_p.communicate()
+                                        apply_p.wait()
+                                        os.remove(cwd + "/main.tf")
+                                        if apply_errors != None:
+                                            failed_files.append(example + " main.tf")
+                                        else:
+                                            success_files.append(example + " main.tf")
+                                    else:
+                                        os.remove(cwd + "/main.tf")
+                                        failed_files.append(example + " main.tf")
+                                else:
+                                    os.remove(cwd + "/main.tf")
+                                    failed_files.append(example + " main.tf plan_p.poll is != 0, ") 
+                        elif i == 1:
+                            copy = "cp " + example_loc + "update_resource.tf " + cwd
+                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, stderr=subprocess.PIPE)
+                            op, copy_errors = copy_p.communicate()
+                            print( copy_p.returncode, copy_errors, "No Copy Errors")
+                            if copy_p.returncode != 0:
+                                print("Error Detected", copy_errors)
+                                failed_files.append(example + " failed to copy update_resource file, ")
+                                continue
+                            else:
+                                print("executing update_resource.tf plan: ", example)
+                                plan_cmd = "terraform plan"
+                                plan_p = subprocess.Popen(plan_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                plan_p.wait()
+                                if plan_p.poll() == 0:
+                                    _, plan_errors = plan_p.communicate()
+                                    if plan_errors is None:
+                                        print("executing update_resource.tf apply: ", example)
+                                        apply_cmd = "terraform apply --auto-approve"
+                                        apply_p = subprocess.Popen(apply_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        apply_p.wait()
+                                        _, apply_errors = apply_p.communicate()
+                                        os.remove(cwd + "/update_resource.tf")
+                                        if apply_errors != None:
+                                            failed_files.append(example + " update_resource.tf")
+                                        else:
+                                            success_files.append(example + " update_resource.tf")
+                                    else:
+                                        os.remove(cwd + "/update_resource.tf")
+                                        failed_files.append(example + " update_resource.tf")
+                                else:
+                                    os.remove(cwd + "/update_resource.tf")
+                                    failed_files.append(example + " update_resource.tf the plan_p.poll is != 0, ")
+                        else:
+                            copy = "cp " + example_loc + "data_source.tf " + cwd
+                            copy_p = subprocess.Popen(copy, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                            _, copy_errors = copy_p.communicate()
+                            if  copy_errors is None:
+                                print("executing data_source.tf plan: ", example) 
+                                if os.path.exists(cwd + "/terraform.tfstate"):
+                                    os.remove( cwd + "/terraform.tfstate")
+                                if os.path.exists(cwd + "/terraform.tfstate.backup"):
+                                    os.remove(cwd + "/terraform.tfstate.backup")
+                                plan_cmd = "terraform plan"
+                                plan_p = subprocess.Popen(plan_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                plan_p.wait()
+                                if plan_p.poll() == 0:
+                                    _, plan_errors = plan_p.communicate()
+                                    if plan_errors is None:
+                                        print("executing data_source.tf apply: ", example) 
+                                        apply_cmd = "terraform apply --auto-approve"
+                                        apply_p = subprocess.Popen(apply_cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+                                        apply_p.wait()
+                                        _, apply_errors = apply_p.communicate()
+                                        os.remove(cwd + "/data_source.tf")
+                                        os.remove( cwd + "/terraform.tfstate")
+                                        if os.path.exists(cwd + "/terraform.tfstate.backup"):
+                                            os.remove(cwd + "/terraform.tfstate.backup")
+                                        if apply_errors != None:
+                                            failed_files.append(example + " data_source.tf")
+                                        else:
+                                            success_files.append(example + " data_source.tf")
+                                    else:
+                                        os.remove(cwd + "/data_source.tf")
+                                        failed_files.append(example + " data_source.tf")
+                                else:
+                                    os.remove(cwd + "/data_source.tf")
+                                    failed_files.append(example + " data_source.tf the plan_p.poll is != 0, ") 
+                            else:
+                                failed_files.append(example + " failed to copy data_source file ")
                 elif val == 'puppet'and example not in ['tasks', 'scopes', 'interconnect_types']:
                     example_file_with_extension = example_file[:-1] + str('.pp')
                     cmd = "puppet apply --modulepath={}".format(example_file_with_extension)
@@ -535,9 +677,9 @@ def removeLogFiles(val):
 
 
 if __name__ == '__main__':
-    selected_sdk = input("Please enter SDK you want to validate(python, ansible, ruby, go): ")
+    selected_sdk = input("Please enter SDK you want to validate(python, ansible, ruby, go, terraform): ")
     if selected_sdk == 'go':
-        value_updated = input("\nPlease provide \"true\" as input if below mentioned example have varaiable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
+        value_updated = input("\nPlease provide \"true\" as input if below mentioned example have variable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
         if value_updated.lower() == 'false':
             sys.exit()
     executed_files, is_ansible, sdk = ExecuteFiles(selected_sdk)
