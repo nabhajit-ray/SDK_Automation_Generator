@@ -9,7 +9,7 @@ import re
 from subprocess import Popen, STDOUT, PIPE
 #from ansible_playbook_runner import Runner
 
-api_version = '2200'
+api_version = '2600'
 
 rel_dict = {'FC Networks': 'fc_networks',
             'FCoE Networks': 'fcoe_networks',
@@ -191,9 +191,6 @@ def ExecuteFiles(selected_sdk):
                     else:
                         failed_files.append(example)
                 elif val == 'go':
-                    value_updated = input("\nPlease provide \"true\" as input if below mentioned example have varaiable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
-                    if value_updated.lower() == 'false':
-                        sys.exit()
                     example_file_with_extension = example_file + str('.go')
                     cmd = "go run {}".format(example_file_with_extension)
                     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
@@ -681,6 +678,10 @@ def removeLogFiles(val):
 
 if __name__ == '__main__':
     selected_sdk = input("Please enter SDK you want to validate(python, ansible, ruby, go, terraform): ")
+    if selected_sdk == 'go':
+        value_updated = input("\nPlease provide \"true\" as input if below mentioned example have variable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
+        if value_updated.lower() == 'false':
+            sys.exit()
     executed_files, is_ansible, sdk = ExecuteFiles(selected_sdk)
     resources_from_textfile = LoadResourcesFromFile()
     val4 = input('Please provide value as true to reside log files, else provide false: ')
