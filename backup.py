@@ -113,7 +113,7 @@ def runAnsiblePlaybooks(success_files, failed_files):
 
     return success_files, failed_files
 
-def LoadResourcesFromFile():
+def load_resourcesFromFile():
     """
     To load resources(examples) from external config file.
     """
@@ -136,7 +136,7 @@ def modifyExecutedFiles(executed_files):
 def ExecuteFiles(selected_sdk):
     is_ansible = False
     if selected_sdk not in ['ansible']:
-        loaded_resources = LoadResourcesFromFile()
+        loaded_resources = load_resourcesFromFile()
         print("loaded_resources are {}".format(str(loaded_resources)))     
     cwd = os.getcwd()
     failed_files = []
@@ -683,7 +683,7 @@ if __name__ == '__main__':
         if value_updated.lower() == 'false':
             sys.exit()
     executed_files, is_ansible, sdk = ExecuteFiles(selected_sdk)
-    resources_from_textfile = LoadResourcesFromFile()
+    resources_from_textfile = load_resourcesFromFile()
     val4 = input('Please provide value as true to reside log files, else provide false: ')
     if val4 == False:
         removeLogFiles(val4)
