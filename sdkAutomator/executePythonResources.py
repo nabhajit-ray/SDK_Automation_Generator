@@ -9,15 +9,16 @@ class executePythonResources():
     To Execute Python SDK.
 
     """
-    config_rename_file = os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config-rename.json'
-    config_rename_dummy_file = os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config-rename_dummy.json'
-    config_file = os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config.json'
+    config_rename_file = os.getcwd() + '/oneview-python/examples/config-rename.json'
+    config_rename_dummy_file = os.getcwd() + '/oneview-python/examples/config-rename_dummy.json'
+    config_file = os.getcwd() + '/oneview-python/examples/config.json'
 
     def __init__(self, resource_dict):
         shutil.copyfile(self.config_rename_file, self.config_rename_dummy_file)
         self.resource_dict = resource_dict
         self.exe = self.load_resources()
         self.generate_config_values()
+
         
     def load_resources(self):
         """
@@ -76,14 +77,14 @@ class executePythonResources():
                     shutil.copyfile(self.config_rename_dummy_file, self.config_rename_file)
 
     def check_validate_config(self, file_name):
-        return os.path.isfile(self.file_name)
+        return os.path.isfile(file_name)
 
     def run_python_executor(self):
         """
         Executor for Python modules
         """
         for example in self.exe:
-            example_file = os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/' + example + str('.py')
+            example_file = os.getcwd() + '/oneview-python/examples/' + example + str('.py')
             try:
                 print(">> Executing {}..".format(example))
                 exec(compile(open(example_file).read(), example_file, 'exec'))

@@ -55,7 +55,7 @@ class LogWriter(object):
         self.stdout.flush()
         self.file.flush()
 
-def removeLogFiles():
+def clean_up_files():
     print("---------Removing all log files---------------")
     for rootDir, subdirs, filenames in os.walk(os.getcwd()):
         for filename in fnmatch.filter(filenames, 'logfile*.log'):
@@ -64,12 +64,18 @@ def removeLogFiles():
             except OSError:
                 print("Error while deleting file")
                 print("---------Completed removing log files--------------")
+    try:
+        folder_names = ['oneview-python', 'oneview-ansible-collections','oneview-golang','oneview-terraform-provider']
+        for i in range(len(folder_names)):
+            os.remove(os.getcwd() + '/' + str(i))
+    except Exception as e:
+        print("Error {} occurred while deleting folder {}".format(str(e), str(i)))
 
 def createGitRepositories():
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provier"])
+    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
+    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible-collections"])
+    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
+    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provier"])
 
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
@@ -83,7 +89,7 @@ if __name__ == '__main__':
     resources_executor = executeResources.executeResources(selected_sdk, api_version)
     executed_files = resources_executor.execute(resource_dict)
     sys.stdout = original
-    python_executor = executePythonResources.executePythonResources()
+    python_executor = executePythonResources.executePythonResources(resource_dict)
     resources_from_textfile = python_executor.load_resources()
     if len(executed_files) != len(resources_from_textfile):
         print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
@@ -95,4 +101,4 @@ if __name__ == '__main__':
     #     endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
     #     endpointsfile_writer.main()
 
-    removeLogFiles()
+    clean_up_files()
