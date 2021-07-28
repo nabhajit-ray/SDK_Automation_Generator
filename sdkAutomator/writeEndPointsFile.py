@@ -1,8 +1,7 @@
-from sdkAutomator.executeResources import executeResources
 import sys
-from sdkAutomator.dataScraping import dataScraping
+import dataScraping
 
-class writeEndpointsFile(executeResources):
+class writeEndpointsFile(object):
     resource_names = []
     def __init__(self, product_table_name, executed_files, is_ansible):
         self.line_nos = {}

@@ -1,9 +1,9 @@
-from sdkAutomator.executeResources import executeResources
+import executeResources
 import os
 import subprocess
 import sys
 
-class executeTerraformResources(executeResources):
+class executeTerraformResources(object):
     """
     To Execute Terraform SDK.
 
@@ -13,8 +13,8 @@ class executeTerraformResources(executeResources):
     moving_binary_cmd1 = "mkdir -p ~/.terraform.d/plugins/"
     moving_binary_cmd2 = "mv terraform-provider-oneview ~/.terraform.d/plugins/"
     
-    def __init__(self):
-        super(executeTerraformResources).__init__(self)
+    # def __init__(self):
+    #     super(executeTerraformResources).__init__(self)
 
 
     def run_terraform_executor(self):

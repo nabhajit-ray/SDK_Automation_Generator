@@ -1,1 +1,3 @@
-gitpython
+ansible_playbook_runner
+requests
+beautifulsoup4

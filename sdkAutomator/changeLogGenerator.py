@@ -1,8 +1,8 @@
 import os
 import fileinput, sys, re, logging
-from sdkAutomator.executeResources import executeResources
+import executeResources
 
-class ChangeLogGenerator(executeResources):
+class changeLogGenerator(executeResources):
     """
     To generate code in CHANGELOG file
 
@@ -11,7 +11,7 @@ class ChangeLogGenerator(executeResources):
     :return:
     """
     def __init__(self, resources_list):
-        super(ChangeLogGenerator).__init__()
+        super(changeLogGenerator).__init__()
         self.resources_list = resources_list
         self.file_name = 'CHANGELOG.md'
         path_parent = os.path.dirname(os.getcwd())

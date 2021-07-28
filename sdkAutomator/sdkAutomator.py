@@ -1,11 +1,12 @@
 
 import fnmatch
-from sdkAutomator.executeResources import executeResources
+import writeEndPointsFile
+import executeResources
+import changeLogGenerator
 import sys
 import os
 from datetime import datetime
 import subprocess
-
 class LogWriter(object):
     """
     To show logs on console and flushing the same to logs file.
@@ -46,7 +47,7 @@ if __name__ == '__main__':
     f = open(LOG_FILENAME, 'w')
     original = sys.stdout
     sys.stdout = LogWriter(f)
-    resources_executor = executeResources(selected_sdk, api_version)
+    resources_executor = executeResources.executeResources(selected_sdk, api_version)
     executed_files = resources_executor.execute(selected_sdk)
     # if selected_sdk == 'go':
     #     value_updated = input("\nPlease provide \"true\" as input if below mentioned example have variable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
@@ -58,10 +59,10 @@ if __name__ == '__main__':
         print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
     else:
         print("---------Started writing to CHANGELOG.md---------")
-        changelog_generator = ChangeLogGenerator(executed_files)
+        changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
         changelog_generator.write_data()
         print("---------Completed writing to CHANGELOG.md---------")
-        endpointsfile_writer = writeEndpointsFile('## HPE OneView', executed_files)
+        endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
         endpointsfile_writer.main()
 
     removeLogFiles()

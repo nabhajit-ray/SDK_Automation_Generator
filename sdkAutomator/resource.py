@@ -1,5 +1,5 @@
-class Resource(object):
-    def __init__(self,api_version=800):
+class resource(object):
+    def __init__(self):
         self.resource_dict = {
             'FC Networks': 'fc_networks',
             'FCoE Networks': 'fcoe_networks',
