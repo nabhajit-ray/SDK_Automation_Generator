@@ -1,15 +1,15 @@
-from sdkAutomator.executeResources import ExecuteResources
+from sdkAutomator.executeResources import executeResources
 import os
 import shutil
 
-class ExecutePythonResources(ExecuteResources):
+class executePythonResources(executeResources):
     """
     To Execute Python SDK.
 
     """
     
     def __init__(self):
-        super(ExecutePythonResources).__init__(self)
+        super(executePythonResources).__init__(self)
 
     def run_python_executor(self):
         """

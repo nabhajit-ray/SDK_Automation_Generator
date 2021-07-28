@@ -1,17 +1,17 @@
 from sdkAutomator.resource import Resource
-from sdkAutomator.executeAnsibleResources import ExecuteAnsibleResources
-from sdkAutomator.executePythonResources import ExecutePythonResources
-from sdkAutomator.executeGoResources import ExecuteGoResources
-from sdkAutomator.executeTerraformResources import ExecuteTerraformResources
+from sdkAutomator.executeAnsibleResources import executeAnsibleResources
+from sdkAutomator.executePythonResources import executePythonResources
+from sdkAutomator.executeGoResources import executeGoResources
+from sdkAutomator.executeTerraformResources import executeTerraformResources
 import sys, os, json, shutil
 
 
-class ExecuteResources(Resource):
+class executeResources(Resource):
 
     exe = []
 
     def __init__(self, selected_sdk, api_version):
-        super(ExecuteResources).__init__(self, selected_sdk, api_version)
+        super(executeResources).__init__(self, selected_sdk, api_version)
         self.load_resources()
         self.generate_config_values(self)
         self.success_files = []
@@ -61,13 +61,13 @@ class ExecuteResources(Resource):
     
     def execute(self):
         if self.selected_sdk == 'python':
-            executed_files = ExecutePythonResources.run_python_executor(self)
+            executed_files = executePythonResources.run_python_executor(self)
         elif self.selected_sdk == 'ansible':
-            executed_files = ExecuteAnsibleResources.run_ansible_executor(self)
+            executed_files = executeAnsibleResources.run_ansible_executor(self)
         elif self.selected_sdk == 'go' or self.selected_sdk == 'golang':
-            executed_files = ExecuteGoResources.run_go_executor()
+            executed_files = executeGoResources.run_go_executor()
         elif self.selected_sdk == 'terraform':
-            executed_files = ExecuteTerraformResources.run_terraform_executor()
+            executed_files = executeTerraformResources.run_terraform_executor()
         else:
             print("Invalid SDK")
     

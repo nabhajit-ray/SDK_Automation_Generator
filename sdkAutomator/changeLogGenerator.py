@@ -1,8 +1,8 @@
 import os
 import fileinput, sys, re, logging
-from sdkAutomator.executeResources import ExecuteResources
+from sdkAutomator.executeResources import executeResources
 
-class ChangeLogGenerator(ExecuteResources):
+class ChangeLogGenerator(executeResources):
     """
     To generate code in CHANGELOG file
 

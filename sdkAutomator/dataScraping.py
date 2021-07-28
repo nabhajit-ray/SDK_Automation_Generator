@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 
-class DataFromWebScraping(object):
+class dataScraping(object):
     def __init__(self, ele):
         self.ele = ele
         if self.ele == 'certificates_server':

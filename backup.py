@@ -41,7 +41,7 @@ rel_dict = {'FC Networks': 'fc_networks',
             'Uplink Sets': 'uplink_sets'
             }
 
-class DataFromWebScraping(object):
+class dataScraping(object):
     def __init__(self, ele):
         self.ele = ele
         if self.ele == 'certificates_server':
@@ -487,7 +487,7 @@ class WriteToChangeLog(object):
 
 resource_names = []
 
-class WriteToEndpointsFile(object):
+class writeEndpointsFile(object):
     def __init__(self, product_table_name, executed_files, is_ansible, sdk):
         self.line_nos = {}
         self.res_lines = {}
@@ -653,7 +653,7 @@ class WriteToEndpointsFile(object):
             resource_names.append(formatted_resource_name)
         self.add_column(self.product_table_name)
         for resource_name in resource_names:
-            webscraping_data = DataFromWebScraping(self.executed_files[i])
+            webscraping_data = dataScraping(self.executed_files[i])
             data_returned_from_web_scraping = webscraping_data.data_scraped()
             st_no, end_no = self.get_rows(resource_name)
             self.add_checks(st_no, end_no, data_returned_from_web_scraping)
@@ -707,7 +707,7 @@ if __name__ == '__main__':
         print("Please proceed with writing to endpoints file")
     val2 = input("Do you want to edit endpoints-support.md: ")
     if val2 in ['y', 'yes', '']:
-        read_md_obj = WriteToEndpointsFile('## HPE OneView', executed_files, is_ansible, sdk)
+        read_md_obj = writeEndpointsFile('## HPE OneView', executed_files, is_ansible, sdk)
         read_md_obj.main()
     else:
          print("Please proceed with editing endpoints file")

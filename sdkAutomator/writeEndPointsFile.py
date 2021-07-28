@@ -1,8 +1,8 @@
-from sdkAutomator.executeResources import ExecuteResources
+from sdkAutomator.executeResources import executeResources
 import sys
-from sdkAutomator.dataScraping import DataFromWebScraping
+from sdkAutomator.dataScraping import dataScraping
 
-class WriteToEndpointsFile(ExecuteResources):
+class writeEndpointsFile(executeResources):
     resource_names = []
     def __init__(self, product_table_name, executed_files, is_ansible):
         self.line_nos = {}
@@ -200,7 +200,7 @@ class WriteToEndpointsFile(ExecuteResources):
             self.resource_names.append(formatted_resource_name)
         self.add_column(self.product_table_name)
         for resource_name in self.resource_names:
-            webscraping_data = DataFromWebScraping(self.executed_files[i])
+            webscraping_data = dataScraping(self.executed_files[i])
             data_returned_from_web_scraping = webscraping_data.data_scraped()
             st_no, end_no = self.get_rows(resource_name)
             self.add_checks(st_no, end_no, data_returned_from_web_scraping)

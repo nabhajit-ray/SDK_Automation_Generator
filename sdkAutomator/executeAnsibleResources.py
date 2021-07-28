@@ -2,7 +2,7 @@ from ansible_playbook_runner import Runner
 import sys, os
 
 
-class ExecuteAnsibleResources():
+class executeAnsibleResources(object):
     """
     To Execute Ansible SDK.
 

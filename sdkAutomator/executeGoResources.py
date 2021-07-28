@@ -1,16 +1,16 @@
-from sdkAutomator.executeResources import ExecuteResources
+from sdkAutomator.executeResources import executeResources
 import os
 import subprocess
 import sys
 
-class ExecuteGoResources(ExecuteResources):
+class executeGoResources(executeResources):
     """
     To Execute GoLang SDK.
 
     """
     
     def __init__(self):
-        super(ExecuteGoResources).__init__(self)
+        super(executeGoResources).__init__(self)
 
     def run_go_executor(self):
         """
