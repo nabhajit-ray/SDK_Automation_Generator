@@ -1,5 +1,6 @@
 
 import fnmatch
+import executePythonResources
 import writeEndPointsFile
 import executeResources
 import changeLogGenerator
@@ -66,7 +67,9 @@ def removeLogFiles():
 
 def createGitRepositories():
     subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
-
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provier"])
 
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
@@ -79,18 +82,15 @@ if __name__ == '__main__':
     sys.stdout = LogWriter(f)
     resources_executor = executeResources.executeResources(selected_sdk, api_version)
     executed_files = resources_executor.execute(resource_dict)
-    # if selected_sdk == 'go':
-    #     value_updated = input("\nPlease provide \"true\" as input if below mentioned example have variable updated with described values as below else provide \"false\" as input to terminate\n\nexamples/server_certificate.go\n\tserver_certificate_ip\t= \"172.18.11.11\"\nexamples/hypervisor_managers.go\n\thypervisor_manager_ip\t= \"172.18.13.11\"//\"<hypervisor_manager_ip>\"\n\tusername\t= \"dcs\" //\"<hypervisor_user_name>\"\n\tpassword\t= \"dcs\" //\"<hypervisor_password>\"\nexamples/storage_systems.go\n\tusername\t=\"dcs\"\n\tpassword\t=\"dcs\"\n\thost_ip \t=\"172.18.11.11\"\n\thost2_ip\t=\"172.18.11.12\"\n>>")
-    #     if value_updated.lower() == 'false':
-    #         sys.exit()
     sys.stdout = original
-    resources_from_textfile = executeResources.load_resources()
-    # if len(executed_files) != len(resources_from_textfile):
-    #     print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
-    # else:
-    #     print("---------Started writing to CHANGELOG.md---------")
-    #     changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
-    #     changelog_generator.write_data()
+    python_executor = executePythonResources.executePythonResources()
+    resources_from_textfile = python_executor.load_resources()
+    if len(executed_files) != len(resources_from_textfile):
+        print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
+    else:
+        print("---------Started writing to CHANGELOG.md---------")
+        changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
+        changelog_generator.write_data()
     #     print("---------Completed writing to CHANGELOG.md---------")
     #     endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
     #     endpointsfile_writer.main()
