@@ -41,7 +41,7 @@ def createGitRepositories():
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
     api_version = sys.argv[2]
-    createGitRepositories()
+    #createGitRepositories()
     print("---------Started executing files---------")
     LOG_FILENAME = datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log')
     f = open(LOG_FILENAME, 'w')
@@ -55,14 +55,14 @@ if __name__ == '__main__':
     #         sys.exit()
     sys.stdout = original
     resources_from_textfile = executeResources.load_resources()
-    if len(executed_files) != len(resources_from_textfile):
-        print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
-    else:
-        print("---------Started writing to CHANGELOG.md---------")
-        changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
-        changelog_generator.write_data()
-        print("---------Completed writing to CHANGELOG.md---------")
-        endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
-        endpointsfile_writer.main()
+    # if len(executed_files) != len(resources_from_textfile):
+    #     print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
+    # else:
+    #     print("---------Started writing to CHANGELOG.md---------")
+    #     changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
+    #     changelog_generator.write_data()
+    #     print("---------Completed writing to CHANGELOG.md---------")
+    #     endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
+    #     endpointsfile_writer.main()
 
     removeLogFiles()

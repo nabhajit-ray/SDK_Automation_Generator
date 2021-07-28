@@ -93,7 +93,7 @@ class executeResources(object):
     
     def execute(self):
         if self.selected_sdk == 'python':
-            python_executor = executePythonResources(self)
+            python_executor = executePythonResources.executePythonResources(self)
             executed_files = python_executor.run_python_executor(self)
         # elif self.selected_sdk == 'ansible':
         #     executed_files = executeAnsibleResources.run_ansible_executor(self)
