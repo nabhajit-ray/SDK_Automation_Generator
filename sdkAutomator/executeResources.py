@@ -44,22 +44,21 @@ class executeResources(object):
         #super(executeResources, self).__init__(selected_sdk, api_version)
         self.selected_sdk = selected_sdk
         self.api_version = api_version
-        self.load_resources()
-        self.generate_config_values(self)
+#        self.generate_config_values()
         self.success_files = []
         self.failed_files = []
 
     def generate_config_values(self):
-        shutil.copyfile(os.getcwd() + self.selected_sdk + 'config-rename.json', os.getcwd() + self.selected_sdk + 'config-rename_dummy.json')
-        os.rename(os.getcwd() + self.selected_sdk + 'config-rename.json', os.getcwd() + self.selected_sdk + 'config.json')
-        with open(os.getcwd() + self.selected_sdk + 'config.json', 'r') as config:
+        shutil.copyfile(os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config-rename.json', os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config-rename_dummy.json')
+        os.rename(os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config-rename.json', os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config.json')
+        with open(os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config.json', 'r') as config:
             json_object = json.load(config)
-            json_object["ip"] = ""
-            json_object["credentials"]["userName"] = ""
-            json_object["credentials"]["password"] = ""
-            json_object["credentials"]["userName"] = ""
+            json_object["ip"] = "10.1.19.63"
+            json_object["credentials"]["userName"] = "Administrator"
+            json_object["credentials"]["password"] = "admin123"
+            json_object["credentials"]["authLoginDomain"] = ""
             json_object["image_streamer_ip"] = ""
-            json_object["api_version"] = ""
+            json_object["api_version"] = "3200"
             json_object["server_certificate_ip"] = "172.18.13.11"
             json_object["hypervisor_manager_ip"] = "172.18.13.11"
             json_object["hypervisor_user_name"] = "dcs"
@@ -68,33 +67,14 @@ class executeResources(object):
             json_object["storage_system_username"] = ""
             json_object["storage_system_password"] = ""
             json_object["storage_system_family"] = ""
-            with open(os.getcwd() + self.selected_sdk + 'config.json', 'w') as config:
+            with open(os.getcwd() + '/oneview-' + self.selected_sdk + '/examples/config.json', 'w') as config:
                 json.dump(json_object, config)
     
-    def load_resources(self):
-        """
-        To load resources(examples) from external config file.
-        """
-        try:
-            with open('../resources_list.txt', 'r') as resources_list:
-                resources = resources_list.read().splitlines()
-            if not resources:
-                print("no data in file resources_list")
-
-        except IOError as e:
-            print ("I/O error({0}): {1}".format(e.errno, e.strerror))
-        except:
-            print("Unexpected error: {}", sys.exc_info()[0])
-
-        for resource in self.resources_list:
-            self.exe.append(self.resource_dict[resource])
-
-        return self.exe
-    
-    def execute(self):
+   
+    def execute(self, resource_dict):
         if self.selected_sdk == 'python':
-            python_executor = executePythonResources.executePythonResources(self)
-            executed_files = python_executor.run_python_executor(self)
+            python_executor = executePythonResources.executePythonResources(resource_dict)
+            executed_files = python_executor.run_python_executor()
         # elif self.selected_sdk == 'ansible':
         #     executed_files = executeAnsibleResources.run_ansible_executor(self)
         # elif self.selected_sdk == 'go' or self.selected_sdk == 'golang':
