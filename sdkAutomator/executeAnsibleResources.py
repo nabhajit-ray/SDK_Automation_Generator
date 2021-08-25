@@ -1,49 +1,51 @@
-# from ansible_playbook_runner import Runner
-# import sys, os
+from ansible_playbook_runner import Runner
+import os
+import subprocess
 
 
-# class executeAnsibleResources(object):
-#     """
-#     To Execute Ansible SDK.
+class executeAnsibleResources(object):
+    """
+    To Execute Ansible SDK.
 
-#     """
-#     ansible_exe = []
+    """
 
-#     def __init__(self):
-#         executable_resources = self.read_ansible_resources(self)
-    
-#     def read_ansible_resources(self):
-#         """
-#         Modifying ansible playbook names to make them uniform across all SDK's
-#         """
-#         os.chdir(os.getcwd() + '/ansible/playbooks')
-#         try:
-#             with open('automation.yaml', 'r') as ansible_modules_list:
-#                 ansible_modules = ansible_modules_list.read().splitlines()
-#             if not ansible_modules:
-#                 print("no data in file ansible_modules_list")
+    def __init__(self):
+        self.prepare_environment_for_ansible_collections()
 
-#         except IOError as e:
-#             print ("I/O error({0}): {1}".format(e.errno, e.strerror))
-#         except:
-#             print("Unexpected error: {}", sys.exc_info()[0])
+    def prepare_environment_for_ansible_collections(self):
+        cmd = "python collection_config.py -a 1.1.1.1 -u Admin -p admin -d OVAD -i 1.1.2.2 -v 3200 -w Synergy -l oneview-ansible-collection"
+        try:
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+            p.wait()
+            contents = p.stdout.read()
+            print(contents)
+            output, errors = p.communicate()
+            if errors is  None:
+                print("Config update went successful")
+        except Exception as e:
+            print("Error while updating configuration {}".formart(str(e)))
 
-#         return list(set(self.ansible_modules))
-
-#     def run_ansible_executor(self):
-#         """
-#         Executor for Ansible playbooks
-#         """
-#         success_files = []
-#         failed_files = []
-#         try:
-#             for executable in self.executable_resources:
-#                 result = Runner(['/etc/ansible/hosts'], executable).run()
-#                 if result == 0:
-#                     success_files.append(executable)
-#                 else:
-#                     failed_files.append(executable)
-#         except Exception as e:
-#             print("Error while executing playbook {}".format(str(e)))
+    def run_ansible_executor(self):
+        """
+        Executor for Ansible playbooks
+        """
+        try:
+            os.chdir('/home/venkatesh/oneview-ansible-collection/playbooks')
+            result = Runner(['/etc/ansible/hosts'], 'automation.yml').run()
+            if result == 0:
+                print("Executor for Ansible playbooks went successful")
+        except Exception as e:
+            print("Error while executing playbook {}".format(str(e)))
+        finally:
+            cmd = 'python collection_config.py'
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+            p.wait()
+            contents = p.stdout.read()
+            print(contents)
+            output, errors = p.communicate()
+            if errors:
+                os.chdir(os.getcwd())
+                raise Exception('error in post cleanup actions in run_ansible_executor')
+            os.chdir(os.getcwd())
         
-#         return self.success_files
+        return self.success_files

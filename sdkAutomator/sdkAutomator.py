@@ -86,6 +86,7 @@ if __name__ == '__main__':
     f = open(LOG_FILENAME, 'w')
     original = sys.stdout
     sys.stdout = LogWriter(f)
+    os.system('python collectionsConfig.py -a "1.1.1.1" -u "Admin" -p "admin" -d "OVAD" -i "1.1.2.2" -v 3200 -w "Synergy" -l oneview-ansible-collection')
     resources_executor = executeResources.executeResources(selected_sdk, api_version)
     executed_files = resources_executor.execute(resource_dict)
     sys.stdout = original

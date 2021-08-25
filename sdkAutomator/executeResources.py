@@ -1,4 +1,6 @@
+from sdkAutomator.executeAnsibleResources import executeAnsibleResources
 import executePythonResources
+import executeAnsibleResources
 
 
 class executeResources(object):
@@ -46,8 +48,9 @@ class executeResources(object):
         if self.selected_sdk == 'python':
             python_executor = executePythonResources.executePythonResources(resource_dict)
             executed_files = python_executor.run_python_executor()
-        # elif self.selected_sdk == 'ansible':
-        #     executed_files = executeAnsibleResources.run_ansible_executor(self)
+        elif self.selected_sdk == 'ansible':
+            ansible_executor = executeAnsibleResources.executeAnsibleResources()
+            executed_files = ansible_executor.run_ansible_executor()
         # elif self.selected_sdk == 'go' or self.selected_sdk == 'golang':
         #     executed_files = executeGoResources.run_go_executor()
         # elif self.selected_sdk == 'terraform':
