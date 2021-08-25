@@ -4,6 +4,8 @@ import shutil
 class executePythonResources():
 
     exe = []
+    success_files = []
+    failed_files = []
 
     """
     To Execute Python SDK.
@@ -84,16 +86,19 @@ class executePythonResources():
         """
         Executor for Python modules
         """
-        for example in self.exe:
-            example_file = os.getcwd() + '/oneview-python/examples/' + example + str('.py')
-            try:
+        os.chdir('/home/venkatesh/oneview-python/examples')
+        print(os.getcwd())
+        try:
+            for example in self.exe:
+                example_file = example + str('.py')
                 print(">> Executing {}..".format(example))
-                exec(compile(open(example_file).read(), example_file, 'exec'))
+                exec(compile(open('/home/venkatesh/oneview-python/examples/' + example_file).read(), '/home/venkatesh/oneview-python/examples/' + example_file, 'exec'))
                 self.success_files.append(example)    
-            except Exception as e:
-                print("Failed to execute {} with exception {}".format(str(example),(str(e))))
-                self.failed_files.append(example)
-            finally:
-                os.remove(self.config_file)
-                shutil.copyfile(self.config_rename_dummy_file, self.config_rename_file)
+        except Exception as e:
+            print("Failed to execute {} with exception {}".format(str(example),(str(e))))
+            self.failed_files.append(example)
+        finally:
+            os.remove(self.config_file)
+            shutil.copyfile(self.config_rename_dummy_file, self.config_rename_file)
+            os.remove(self.config_rename_dummy_file)
         return self.success_files
