@@ -2,13 +2,53 @@
 - hosts: localhost
   gather_facts: no
   vars:
-    vcenter_server: "vcenter_server"
-    vcenter_user: "vcenter_user"
-    vcenter_pass: "vcenter_pass"
+    vcenter_server: "10.1.0.16"
+    vcenter_user: "chebrolb@lab.local"
+    vcenter_pass: "Welcome123#"
     datacenter_name: "ZeusDC"
     cluster_name: "Cluster01"
+
   tasks:
   - debug: var=vcenter_user
+
+  - name: Test reachability to 10.1.19.63 using shell command
+    shell: ping -c 1 10.1.19.63
+
+  - name: Get Tags from given VM Name
+    community.vmware.vmware_vm_info:
+      hostname: '{{ vcenter_server }}'
+      username: '{{ vcenter_user }}'
+      password: '{{ vcenter_pass }}'
+      validate_certs: False
+      folder: "ZeusDC/vm"
+    delegate_to: localhost
+    register: vm_info
+
+  - debug:
+      msg: "{{ item }}"
+    with_items:
+      - "{{ vm_info.virtual_machines | json_query(query) }}"
+    vars:
+      query: "[?guest_name=='Harika_DCS_6.30']"
+
+
+  - name: Run command inside a virtual machine with wait and timeout
+    community.vmware.vmware_vm_shell:
+      hostname: "{{ vcenter_server }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_pass }}"
+      validate_certs: False
+      datacenter: "{{ datacenter_name }}"
+      folder: "/{{datacenter_name}}/vm"
+      vm_id: venkat-ubuntu_vm
+      vm_username: venkatesh
+      vm_password: ovsdk@123
+      vm_shell: /bin/sleep
+      vm_shell_args: 100
+      wait_for_process: True
+      timeout: 2000
+    delegate_to: localhost
+    register: shell_command_with_wait_timeout
 
   - name: Clone VM from Template
     vmware_guest:
@@ -42,14 +82,29 @@
       wait_for_ip_address: yes
     delegate_to: localhost
 
-    #- name: Poweroff the VM
-    #vmware_guest:
-    # hostname: "{{ vcenter_server }}"
-    # username: "{{ vcenter_user }}"
-    # password: "{{ vcenter_pass }}"
-    # validate_certs: False
-    # name: web02
-    # state: poweredoff
-    # wait_for_ip_address: yes
-    #delegate_to: localhost
+  - name: Clone from ovf
+    community.vmware.vmware_deploy_ovf:
+      hostname: '{{ vcenter_server }}'
+      username: '{{ vcenter_user }}'
+      password: '{{ vcenter_pass }}'
+      datacenter: "{{ datacenter_name }}"
+      cluster: "{{ cluster_name }}"
+      datastore: "CLRM_INFRA"
+      name: NewVM
+      networks: "{u'VM Network':u'{{  }}'}"
+      power_on: yes
+      ovf: /absolute/path/to/template/mytemplate.ova
+    delegate_to: localhost
+
+ - name: Poweroff the VM
+   vmware_guest:
+      hostname: "{{ vcenter_server }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_pass }}"
+      validate_certs: False
+      name: web02
+      state: poweredoff
+      wait_for_ip_address: yes
+    delegate_to: localhost
+
 
