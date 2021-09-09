@@ -20,7 +20,7 @@ class dcs(object):
         '''
 		
         self.stdout = self.sshlib.execute_command(dcs_command, return_stdout=True)
-        if  is None:
+        if search(expected_output, self.stdout, IGNORECASE) is None:
             raise AssertionError("DCS command output is not as expected: {} found: {}".format(expected_output, self.stdout))
         return self.stdout
 
@@ -37,26 +37,20 @@ class dcs(object):
             self.execute_command_in_dcs_and_verify(cmd[0], cmd[1])
             time.sleep(60)
 
-    def dcs_hardware_setup(self, timeout):
+    def dcs_hardware_setup(self):
         '''
         Performs Hardware Setup in DCS appliance and verify
         Example
             DCS Hardware Setup | <timeout> |
         :param timeout: time required for the hardware setup to complete
-        '''
-		
+        '''	
         resp = self.fusion_lib.fusion_api_get_appliance_version()
-		apiversions, exit_code = self.sshlib.execute_command(command="curl --request GET https://localhost/rest/version", return_rc=True)
-		if exit_code == 0:
-			apiVersion = json.loads(apiversions)
-			status, exit_code = self.sshlib.execute_command(command="curl -s -o /dev/nul -I -w '%{http_code}\n' -X POST -H X-API-Version:" + apiVersion["currentVersion"] + " https://localhost/rest/appliance/tech-setup", return_rc=True)
-			if exit_code!=0 or int(status)!=202:
-				raise AssertionError("Failed to Invoke Sever Hardware discovery with status:{} and exit code:{}".format(status, exit_code))
-			'''
-			resp = self.fusion_lib.fusion_api_get_task(param="?filter='name'='Discover hardware'&sort=created:descending&count=1")
-			log.info("Wait Until Hardware Setup completes")
-			BuiltIn().run_keyword_and_continue_on_failure("Wait for Task2", resp['members'][0], str(timeout))
-			'''
+        apiversions, exit_code = self.sshlib.execute_command(command="curl --request GET https://localhost/rest/version", return_rc=True)
+        if exit_code == 0:
+            apiVersion = json.loads(apiversions)
+            status, exit_code = self.sshlib.execute_command(command="curl -s -o /dev/nul -I -w '%{http_code}\n' -X POST -H X-API-Version:" + apiVersion["currentVersion"] + " https://localhost/rest/appliance/tech-setup", return_rc=True)
+            if exit_code != 0 or int(status) != 202:
+                raise AssertionError("Failed to Invoke Sever Hardware discovery with status:{} and exit code:{}".format(status, exit_code))
 
     def dcs_schematic_configuration(self, vm, user, userpwd, dcs_commands):
         '''
@@ -72,7 +66,7 @@ class dcs(object):
         self.sshlib.open_connection(vm)
         self.sshlib.login(username=user, password=userpwd)
         self.change_dcs_schematic(dcs_commands)
-#        self.dcs_hardware_setup(timeout)
+        self.dcs_hardware_setup()
         self.sshlib.close_connection()
 		
 dcs_commands=[
