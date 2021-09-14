@@ -1,3 +1,5 @@
+### To run this script, install 'pyvmomi' package using pip
+
 ---
 - hosts: localhost
   gather_facts: no
