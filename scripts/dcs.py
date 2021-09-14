@@ -1,9 +1,10 @@
 import requests
 import json
 import logging
-import os.path
 import time
 from copy import deepcopy
+import platform    # For getting the operating system name
+import subprocess  # For executing a shell command
 
 rest_call_timeout_sec = 60
 max_retries_in_session = 50
@@ -12,8 +13,8 @@ sec_between_polling = 10
 
 class FirstTimeSetUp(object):
 
-    def __init__(self, appliance_name, use_ip=False, override_version=None, retries=max_retries_in_session, appliance_admin_creds=None, appliance_dhcp_ip_address=None
-                 post_eula_delay=0, use_static_ip=False, use_one_ip=False, ipv6_type=None, ova_ip=None, host_data=None)):
+    def __init__(self, appliance_name, use_ip=False, override_version=None, retries=max_retries_in_session, appliance_dhcp_ip_address=None,
+                 post_eula_delay=0, use_static_ip=False, use_one_ip=False, ipv6_type=None, ova_ip=None, host_data=None):
         """Constructor method to RestAppliance.
         We compute the correct API-Version for REST calls.
             The version can be overridden by passing in a value for override_version.
@@ -30,8 +31,6 @@ class FirstTimeSetUp(object):
             Currently only accepting values of 100, 199, and 200.
         retries (Optional): int
             Number of retries to do in HTTP session.
-        appliance_admin_creds (Optional): dict
-            A dictionary with appliance Administrator login and password if it is different from default.
         appliance_dhcp_ip_address : str
             appliance dhcp ip address, will be used to connect to the appliance if not None
         """
@@ -41,7 +40,6 @@ class FirstTimeSetUp(object):
         else:
             self.base_url = "https://" + appliance_name
         self.use_ip = use_ip
-        self.appliance_admin_creds = appliance_admin_creds
 
         # create a persistant session so that we can retry if the appliance goes offline (e.g. first time setup)
         self.sess = requests.Session()
@@ -53,10 +51,10 @@ class FirstTimeSetUp(object):
         # if version is passed in, use that.  Else use the default for the program
         # Default to the minimal version number that implements all the requirements that we need. Defined per program.
         # Eventually we may need version overrides at each REST call.
-        if not override_version:
-            self.api_version = 120
-        else:
+        if override_version:
             self.api_version = override_version
+        else:
+            self.api_version = 120
 
         logging.info("The API Version utilized is {0}.".format(self.api_version))
         self._header = {'X-API-Version': '{}'.format(self.api_version), 'Content-Type': 'application/json'}
@@ -242,7 +240,7 @@ class FirstTimeSetUp(object):
         """On initial logon, the administrator's password has to be changed from the default value.
         The call to the administrator password change is attempted.
         If the change administrator password call fails, then we attempt to login with the administrator password.
-            If successful, we log a message and the accurate administrator password.
+        If successful, we log a message and the accurate administrator password.
         If the administrator login is not successful, an error is raised.
 
         The administrator data is pulled from the dictionary in this file.  This needs to be moved to a more formal location.
@@ -575,16 +573,52 @@ class FirstTimeSetUp(object):
         logging.info("First time setup was successful")
         logging.debug(json.dumps(self.get_networking_data(), indent=2, sort_keys=True))
         
+def readIPV6FromFile(self):
+    ipv6address = []
+    vm_network_json_file = open('vm_network.json',)
+    data = json.load(vm_network_json_file)
         
+    # Iterating through the json list
+    for i in data['results'][0]['msg']:
+        for j in data['results'][0]['msg'][i]['ipv6']:
+            ipv6address.append(j)
+        
+    # Closing file
+    vm_network_json_file.close()
+    return ipv6address
+
+
+def ping(hosts):
+    """
+    Returns True if host (str) responds to a ping request.
+    Remember that a host may not respond to a ping (ICMP) request even if the host name is valid.
+    """
+    operating_sys = platform.system().lower()
+    for i in hosts:
+        param = '-n' if operating_sys=='windows' else '-c'
+        shell_needed = True if operating_sys == 'windows' else False
+
+        # Building the command. Ex: "ping -c 1 google.com"
+        ping_command = ['ping', param, '1', i]
+
+        ping_output = subprocess.run(ping_command,shell=shell_needed,stdout=subprocess.PIPE)
+        success = ping_output.returncode
+        if success == 0:
+            return (str(i)+str('%ens160'))
+                   
 if __name__ == '__main__':
-    ra = FirstTimeSetUp(appliance_name, override_version=version, use_ip=False,
-                       appliance_admin_creds=None, appliance_dhcp_ip_address=None,
-                       post_eula_delay=0, use_static_ip=False,use_one_ip=False,
+    post_eula_delay = '10'
+    ntpserver = "10.10.10.10"
+    ipv6address = readIPV6FromFile()
+    pingableipv6 = ping(ipv6address)
+    ra = FirstTimeSetUp("appliance_name", override_version=3200, use_ip=False,
+                       appliance_dhcp_ip_address=None,
+                       post_eula_delay=post_eula_delay, use_static_ip=False,use_one_ip=False,
                        ipv6_type=None, ova_ip=None, host_data=None)
     ra.accept_eula("yes")
     logging.info("Sleeping {0} seconds to wait for appliance to stabilize".format(post_eula_delay))
     time.sleep(post_eula_delay)
     ra.change_administrator_password()
-    ra.first_time_setup(ntpserver, use_static_ip=use_static_ip,
-            use_i3s_fts=use_i3s_fts, use_one_ip=use_one_ip, ipv6_type=ipv6_type,
-            ova_ip=ova_ip, host_data=host_data)
+    ra.first_time_setup(ntpserver, use_static_ip=False,
+            use_i3s_fts=False, use_one_ip=False, ipv6_type=None,
+            ova_ip=None, host_data=None)
