@@ -1,4 +1,4 @@
-### To run this script, install 'pyvmomi' package using pip
+### To run this script, install 'pyvmomi' and 'jmespath' package using pip
 
 ---
 - hosts: localhost
