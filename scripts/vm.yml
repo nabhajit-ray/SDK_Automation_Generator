@@ -27,13 +27,18 @@
     register: vm_info
 
   - debug:
-      msg: "{{ item }}"
+      msg: "{{ item.vm_network }}"
     with_items:
       - "{{ vm_info.virtual_machines | json_query(query) }}"
+     register: "{{ vm_network }}"
     vars:
       query: "[?guest_name=='Harika_DCS_6.30']"
-
-
+      
+  - copy:
+      content: "{{ vm_network }}"
+      dest: ./vm_network.json
+    delegate_to: localhost
+     
   - name: Run command inside a virtual machine with wait and timeout
     community.vmware.vmware_vm_shell:
       hostname: "{{ vcenter_server }}"
