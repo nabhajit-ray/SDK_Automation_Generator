@@ -17,8 +17,7 @@ class dcs(object):
         :param expected_output: expected output from the DCS command executed
         :raises  AssertionError if output does not match with expected output
         :return stdout: return response obtained after command execution
-        '''
-		
+        '''	
         self.stdout = self.sshlib.execute_command(dcs_command, return_stdout=True)
         if search(expected_output, self.stdout, IGNORECASE) is None:
             raise AssertionError("DCS command output is not as expected: {} found: {}".format(expected_output, self.stdout))
@@ -32,17 +31,13 @@ class dcs(object):
         :param dcs_commands: DCS commands to be executed along with its expected output for changing the schematic
                              ex:[["dcs stop", "DCS is Stopped"]]
         '''
-		
         for cmd in dcs_commands:
             self.execute_command_in_dcs_and_verify(cmd[0], cmd[1])
             time.sleep(60)
 
     def dcs_hardware_setup(self):
         '''
-        Performs Hardware Setup in DCS appliance and verify
-        Example
-            DCS Hardware Setup | <timeout> |
-        :param timeout: time required for the hardware setup to complete
+        Performs Hardware Setup in DCS appliance
         '''	
         resp = self.fusion_lib.fusion_api_get_appliance_version()
         apiversions, exit_code = self.sshlib.execute_command(command="curl --request GET https://localhost/rest/version", return_rc=True)
