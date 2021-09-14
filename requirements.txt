@@ -1,3 +1,5 @@
 ansible_playbook_runner
 requests
 beautifulsoup4
+robotframework-sshlibray
+# if unable to install the rebotframework-sshlibrary try upgrading "pip3 install -U pip"
