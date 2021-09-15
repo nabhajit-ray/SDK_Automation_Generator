@@ -13,7 +13,7 @@ class executeAnsibleResources(object):
         self.prepare_environment_for_ansible_collections()
 
     def prepare_environment_for_ansible_collections(self):
-        cmd = "python collection_config.py -a 1.1.1.1 -u Admin -p admin -d OVAD -i 1.1.2.2 -v 3200 -w Synergy -l oneview-ansible-collection"
+        cmd = "python collection_config.py -a 10.1.19.63 -u Administrator -p admin123 -d local -v 3200 -w Synergy -l oneview-ansible-collection"
         try:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
             p.wait()

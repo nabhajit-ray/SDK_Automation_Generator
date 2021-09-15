@@ -72,10 +72,10 @@ def clean_up_files():
         print("Error {} occurred while deleting folder {}".format(str(e), str(i)))
 
 def createGitRepositories():
-    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
-    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible-collections"])
-    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
-    # subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provier"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible-collections"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provier"])
 
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
