@@ -1,8 +1,7 @@
 import os
 import fileinput, sys, re, logging
-import executeResources
 
-class changeLogGenerator(executeResources.executeResources):
+class changeLogGenerator():
     """
     To generate code in CHANGELOG file
 
@@ -11,7 +10,6 @@ class changeLogGenerator(executeResources.executeResources):
     :return:
     """
     def __init__(self, resources_list):
-        super(changeLogGenerator).__init__()
         self.resources_list = resources_list
         self.file_name = 'CHANGELOG.md'
         path_parent = os.path.dirname(os.getcwd())

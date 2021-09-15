@@ -13,14 +13,14 @@ class executeAnsibleResources(object):
         self.prepare_environment_for_ansible_collections()
 
     def prepare_environment_for_ansible_collections(self):
-        cmd = "python collection_config.py -a 10.1.19.63 -u Administrator -p admin123 -d local -v 3200 -w Synergy -l oneview-ansible-collection"
+        cmd = "python collection_config.py -a 10.1.19.63 -u Administrator -p admin123 -d local -v 3200 -w Synergy -l /home/venkatesh/Documents/oneview-ansible-collection"
         try:
             p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
             p.wait()
             contents = p.stdout.read()
             print(contents)
             output, errors = p.communicate()
-            if errors is  None:
+            if errors is None:
                 print("Config update went successful")
         except Exception as e:
             print("Error while updating configuration {}".formart(str(e)))
@@ -29,23 +29,25 @@ class executeAnsibleResources(object):
         """
         Executor for Ansible playbooks
         """
+        cwd = os.getcwd()
         try:
-            os.chdir('/home/venkatesh/oneview-ansible-collection/playbooks')
-            result = Runner(['/etc/ansible/hosts'], 'automation.yml').run()
+
+            os.chdir('/home/venkatesh/Documents/oneview-ansible-collection/playbooks/')
+            result = Runner(['/etc/ansible/hosts'], 'automation.yaml').run()
             if result == 0:
                 print("Executor for Ansible playbooks went successful")
         except Exception as e:
             print("Error while executing playbook {}".format(str(e)))
         finally:
-            cmd = 'python collection_config.py'
-            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
-            p.wait()
-            contents = p.stdout.read()
-            print(contents)
-            output, errors = p.communicate()
-            if errors:
-                os.chdir(os.getcwd())
-                raise Exception('error in post cleanup actions in run_ansible_executor')
-            os.chdir(os.getcwd())
-        
-        return self.success_files
+           os.chdir(cwd)
+           cmd = 'python collection_config.py -l /home/venkatesh/Documents/oneview-ansible-collection'
+           p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+           p.wait()
+           contents = p.stdout.read()
+           print(contents)
+           output, errors = p.communicate()
+           if errors:
+               os.chdir(cwd)
+               raise Exception('error in post cleanup actions in run_ansible_executor')
+           os.chdir(cwd)
+        return

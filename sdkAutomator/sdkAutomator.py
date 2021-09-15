@@ -86,20 +86,19 @@ if __name__ == '__main__':
     f = open(LOG_FILENAME, 'w')
     original = sys.stdout
     sys.stdout = LogWriter(f)
-    os.system('python collectionsConfig.py -a "1.1.1.1" -u "Admin" -p "admin" -d "OVAD" -i "1.1.2.2" -v 3200 -w "Synergy" -l oneview-ansible-collection')
     resources_executor = executeResources.executeResources(selected_sdk, api_version)
     executed_files = resources_executor.execute(resource_dict)
     sys.stdout = original
-    python_executor = executePythonResources.executePythonResources(resource_dict)
-    resources_from_textfile = python_executor.load_resources()
-    if len(executed_files) != len(resources_from_textfile):
-        print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
-    else:
-        print("---------Started writing to CHANGELOG.md---------")
-        changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
-        changelog_generator.write_data()
-    #     print("---------Completed writing to CHANGELOG.md---------")
-    #     endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
-    #     endpointsfile_writer.main()
+    # python_executor = executePythonResources.executePythonResources(resource_dict)
+    # resources_from_textfile = python_executor.load_resources()
+    # if len(executed_files) != len(resources_from_textfile):
+    #     print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
+    # else:
+    #     print("---------Started writing to CHANGELOG.md---------")
+    #     changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
+    #     changelog_generator.write_data()
+    # #     print("---------Completed writing to CHANGELOG.md---------")
+    # #     endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
+    # #     endpointsfile_writer.main()
 
-    clean_up_files()
+    # clean_up_files()

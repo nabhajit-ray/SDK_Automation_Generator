@@ -1,4 +1,3 @@
-from sdkAutomator.executeAnsibleResources import executeAnsibleResources
 import executePythonResources
 import executeAnsibleResources
 

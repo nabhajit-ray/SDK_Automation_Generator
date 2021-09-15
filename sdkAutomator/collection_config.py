@@ -6,6 +6,8 @@ config_file = 'oneview_config.json'
 def replace_config_file(configfile, config):
     f_write = open(configfile, 'w')
     f_write.write(config)
+    print("Update in {} was completed",format(str(configfile)))
+    print("\n")
     f_write.close()
 
 
@@ -13,11 +15,14 @@ def load_collection_config(config, path=""):
     if path:
         os.chdir(path)
     os.chdir('roles')
-    for item in os.listdir('.'):
-        role_file_path = os.path.join(os.getcwd(), item, 'files')
-        if os.path.exists(role_file_path):
-            config_file_path = os.path.join(role_file_path, config_file)
-            replace_config_file(config_file_path, config)
+    try:
+        for item in os.listdir('.'):
+            role_file_path = os.path.join(os.getcwd(), item, 'files')
+            if os.path.exists(role_file_path):
+                config_file_path = os.path.join(role_file_path, config_file)
+                replace_config_file(config_file_path, config)
+    except Exception as e:
+        print("Exception {} was occurred in updating details in {}", format(str(e),str(config_file)))
 
 
 def main():
