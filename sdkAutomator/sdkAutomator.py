@@ -92,12 +92,13 @@ def createFeatureBranch(repo, branchName):
     else:
         new_branch = repo.create_head(branchName)
         new_branch.checkout()
+    return branchName
 
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
     api_version = sys.argv[2]
     #repo = createGitRepositories(selected_sdk)
-    #createFeatureBranch(repo, 'feature')
+    #branchName = createFeatureBranch(repo, 'feature')
     print("---------Started executing files---------")
     # LOG_FILENAME = datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log')
     # f = open(LOG_FILENAME, 'w')
