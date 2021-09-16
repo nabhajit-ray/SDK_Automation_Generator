@@ -75,30 +75,26 @@ def createGitRepositories():
     subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
     subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible-collections"])
     subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provier"])
+    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provider"])
 
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
     api_version = sys.argv[2]
     #createGitRepositories()
     print("---------Started executing files---------")
-    LOG_FILENAME = datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log')
-    f = open(LOG_FILENAME, 'w')
-    original = sys.stdout
-    sys.stdout = LogWriter(f)
+    # LOG_FILENAME = datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log')
+    # f = open(LOG_FILENAME, 'w')
+    # original = sys.stdout
+    # sys.stdout = LogWriter(f)
     resources_executor = executeResources.executeResources(selected_sdk, api_version)
     executed_files = resources_executor.execute(resource_dict)
-    sys.stdout = original
-    # python_executor = executePythonResources.executePythonResources(resource_dict)
-    # resources_from_textfile = python_executor.load_resources()
-    # if len(executed_files) != len(resources_from_textfile):
-    #     print("Didn't generate code in CHANGELOG.md as there are few failed_resources")
-    # else:
-    #     print("---------Started writing to CHANGELOG.md---------")
-    #     changelog_generator = changeLogGenerator.changeLogGenerator(executed_files)
-    #     changelog_generator.write_data()
-    # #     print("---------Completed writing to CHANGELOG.md---------")
-    # #     endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', executed_files)
-    # #     endpointsfile_writer.main()
+    # sys.stdout = original
+    if executed_files:
+        print("---------Started writing to CHANGELOG.md---------")
+        changelog_generator = changeLogGenerator.changeLogGenerator(resource_dict, api_version)
+        changelog_generator.write_data()
+        print("---------Completed writing to CHANGELOG.md---------")
+        endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', resource_dict, api_version)
+        endpointsfile_writer.main()
 
-    # clean_up_files()
+        # clean_up_files()

@@ -1,5 +1,5 @@
-# To add default values in config - python collection_config.py
-# To add customised config - python collection_config.py -a "1.1.1.1" -u "Admin" -p "admin" -d "OVAD" -i "1.1.2.2" -v 3200 -w "Synergy" -l oneview-ansible-collection
+# To add default values in config - python collectionConfig.py
+# To add customised config - python collectionConfig.py -a "1.1.1.1" -u "Admin" -p "admin" -d "OVAD" -i "1.1.2.2" -v 3200 -w "Synergy" -l oneview-ansible-collection
 config_file = 'oneview_config.json'
 
 
@@ -11,7 +11,7 @@ def replace_config_file(configfile, config):
     f_write.close()
 
 
-def load_collection_config(config, path=""):
+def load_collection(config, path=""):
     if path:
         os.chdir(path)
     os.chdir('roles')
@@ -59,7 +59,7 @@ def main():
     "api_version": %s,
     "variant": "%s"\n}\n""" % (arguments)
 
-    load_collection_config(config, args.path)
+    load_collection(config, args.path)
 
 
 if __name__ == '__main__':

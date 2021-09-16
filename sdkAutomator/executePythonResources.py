@@ -51,10 +51,12 @@ class executePythonResources():
 
     def generate_config_values(self):
         check = self.check_validate_config(self.config_rename_file)
+        # if config-rename.json file is present, then rename and copy contents into renamed file.
         if check:
             shutil.copyfile(self.config_rename_file, self.config_rename_dummy_file)
             os.rename(self.config_rename_file, self.config_file)
             try:
+                # load credentials
                 with open(self.config_file, 'r') as config:
                     json_object = json.load(config)
                     json_object["ip"] = "10.1.19.63"
@@ -73,11 +75,16 @@ class executePythonResources():
                     json_object["storage_system_family"] = ""
                     with open(self.config_file, 'w') as config:
                         json.dump(json_object, config)
+            # if there is an exception thrown while updating credentials, revert all previous operations
+            # to make it constant.
             except Exception as e:
                 print("Error {} occurred while generating config files". format(str(e)))
                 if self.check_validate_config(self.config_file):
                     os.remove(self.config_file)
                     shutil.copyfile(self.config_rename_dummy_file, self.config_rename_file)
+                    exit()
+        else:
+            print("config-rename.json file was not found to update credentials")
 
     def check_validate_config(self, file_name):
         return os.path.isfile(file_name)
@@ -86,19 +93,19 @@ class executePythonResources():
         """
         Executor for Python modules
         """
-        os.chdir('/home/venkatesh/oneview-python/examples')
-        print(os.getcwd())
-        try:
-            for example in self.exe:
+        cwd = os.getcwd()
+        os.chdir('/home/venkatesh/Documents/oneview-python/examples')
+        for example in self.exe:
+            try:
                 example_file = example + str('.py')
                 print(">> Executing {}..".format(example))
-                exec(compile(open('/home/venkatesh/oneview-python/examples/' + example_file).read(), '/home/venkatesh/oneview-python/examples/' + example_file, 'exec'))
+                exec(compile(open(example_file).read(), example_file, 'exec'))
                 self.success_files.append(example)    
-        except Exception as e:
-            print("Failed to execute {} with exception {}".format(str(example),(str(e))))
-            self.failed_files.append(example)
-        finally:
-            os.remove(self.config_file)
-            shutil.copyfile(self.config_rename_dummy_file, self.config_rename_file)
-            os.remove(self.config_rename_dummy_file)
+            except Exception as e:
+                print("Failed to execute {} with exception {}".format(str(example),(str(e))))
+                self.failed_files.append(example)
+        os.remove(self.config_file)
+        shutil.copyfile(self.config_rename_dummy_file, self.config_rename_file)
+        os.remove(self.config_rename_dummy_file)
+        os.chdir(cwd)
         return self.success_files

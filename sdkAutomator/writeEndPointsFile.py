@@ -3,14 +3,14 @@ import dataScraping
 
 class writeEndpointsFile(object):
     resource_names = []
-    def __init__(self, product_table_name, executed_files, is_ansible):
+    def __init__(self, product_table_name, resource_dict, api_version):
         self.line_nos = {}
         self.res_lines = {}
         self.product_table_name = product_table_name
         self.all_lines = None
-        self.executed_files = executed_files
-        self.is_ansible = is_ansible
+        self.resource_dict = resource_dict
         self.current_version = None
+        self.api_version = api_version
 
     def write_md(self):
         """
@@ -53,7 +53,7 @@ class writeEndpointsFile(object):
         head_line = self.all_lines[count + 1].split()
         self.current_version = int(head_line[-2].split('V')[-1])
         new_version = 'V' + str(self.current_version + 200)
-        if int(self.self.api_version) == self.current_version:
+        if int(self.api_version) == self.current_version:
             return
 
         column_added = False
@@ -185,22 +185,18 @@ class writeEndpointsFile(object):
         #     lines.append(dict({'line_no':line_no+1, 'line':self.all_lines[line_no+1]}))
 
     def main(self):
-
         i = 0
-        if self.selected_sdk == 'ansible':
-            exe = modifyExecutedFiles(self.executed_files)
-            self.executed_files = exe
-        else:
-            pass
         print("------Initiating write to endpoints file--------")
-        for ele in self.executed_files:
-            resource = list(self.resource_dict.keys())[list(self.resource_dict.values()).index(ele)]
-            formatted_resource_name = '**' + resource + '**'
+        for ele in self.resource_dict.keys():
+            formatted_resource_name = '**' + ele + '**'
             self.resource_names.append(formatted_resource_name)
         self.add_column(self.product_table_name)
         for resource_name in self.resource_names:
-            webscraping_data = dataScraping(self.executed_files[i])
+            webscraping_data = dataScraping(self.resource_dict[resource_name])
             data_returned_from_web_scraping = webscraping_data.data_scraped()
+            # data_returned_from_web_scraping = [{'/rest/fc-networks', 'GET'}, {'/rest/fc-networks', 'POST'}, {'/rest/fc-networks/schema', 'GET'},
+            #         {'/rest/fc-networks/{id}', 'GET'}, {'/rest/fc-networks/{id}', 'PUT'}, {'/rest/fc-networks/{id}', 'DELETE'},
+            #         {'/rest/fc-networks/bulk-delete', 'POST'}]
             st_no, end_no = self.get_rows(resource_name)
             self.add_checks(st_no, end_no, data_returned_from_web_scraping)
             i = i + 1
