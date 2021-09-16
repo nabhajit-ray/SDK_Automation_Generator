@@ -6,8 +6,9 @@ import executeResources
 import changeLogGenerator
 import sys
 import os
+import shutil
 from datetime import datetime
-import subprocess
+import git # if git module is not found, use 'pip install gitpython'
 resource_dict = {
             'FC Networks': 'fc_networks',
             'FCoE Networks': 'fcoe_networks',
@@ -71,16 +72,32 @@ def clean_up_files():
     except Exception as e:
         print("Error {} occurred while deleting folder {}".format(str(e), str(i)))
 
-def createGitRepositories():
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-python"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-ansible-collections"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-golang"])
-    subprocess.check_call(["git", "clone", "https://github.com/HewlettPackard/oneview-terraform-provider"])
+def createGitRepositories(selected_sdk):
+    git_url = 'https://github.com/HewlettPackard/oneview' + str(selected_sdk)
+    repo = git.Repo.clone_from(git_url,
+                           os.getcwd() + '/' + str(selected_sdk) + '/')
+    return repo
+
+def createFeatureBranch(repo, branchName):
+    remote_branches = []
+    num = 0
+    for ref in repo.git.branch('-r').split('\n'):
+        remote_branches.append(ref.replace(" ", ""))
+        
+    branch_present = True if 'origin/' + branchName in remote_branches else False
+    if branch_present:
+        branchName = branchName + '_' + str(num)
+        num = num + 1
+        createFeatureBranch(repo, branchName)
+    else:
+        new_branch = repo.create_head(branchName)
+        new_branch.checkout()
 
 if __name__ == '__main__':
     selected_sdk = sys.argv[1]
     api_version = sys.argv[2]
-    #createGitRepositories()
+    #repo = createGitRepositories(selected_sdk)
+    #createFeatureBranch(repo, 'feature')
     print("---------Started executing files---------")
     # LOG_FILENAME = datetime.now().strftime('logfile_%H_%M_%d_%m_%Y.log')
     # f = open(LOG_FILENAME, 'w')
@@ -97,4 +114,14 @@ if __name__ == '__main__':
         endpointsfile_writer = writeEndPointsFile.writeEndpointsFile('## HPE OneView', resource_dict, api_version)
         endpointsfile_writer.main()
 
-        # clean_up_files()
+    repo.git.add(A=True)
+    repo.git.commit('-m', 'PR for reelase changes #pr',
+                    author='chebroluharika@gmail.com') # to commit changes
+    repo.git.push('--set-upstream', 'origin', branchName)
+    repo.close()
+    os.chdir(path) # Navigate to parent directory
+    # Delete git cloned directory as cleanup
+    if os.path.exists(os.getcwd() + '/' + str(selected_sdk)):
+        shutil.rmtree(os.getcwd() + '/' + str(selected_sdk) + '/', ignore_errors=True)
+
+    # clean_up_files()
