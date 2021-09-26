@@ -308,6 +308,11 @@ class dcs(object):
                     "Failed to Invoke Sever Hardware discovery with status:{} and exit code:{}"
                     .format(status, exit_code))
 
+    def dcs_network_configuration(self, app1Ipv4Addr, app2Ipv4Addr, virtIpv4Addr, ipv4Gateway, ipv4Subnet):
+        self.accept_eula_once()
+        self.change_administrator_password()
+        self.change_ovDcs_ip(app1Ipv4Addr, app2Ipv4Addr, virtIpv4Addr, ipv4Gateway, ipv4Subnet)
+        
     def dcs_schematic_configuration(self, dcs_commands):
         '''
         Change DCS schematic then perform Hardware setup
@@ -317,6 +322,7 @@ class dcs(object):
         self.change_dcs_schematic(dcs_commands)
         self.dcs_hardware_setup()
         self.sshlib.close_connection()
+
 
 
 dcs_commands = [
@@ -332,6 +338,6 @@ dcs_commands = [
     ]
 ]
 if __name__ == '__main__':
-	dcs_inst = dcs()
-        dcs_inst.dcs_network_configuration()
-	dcs_inst.dcs_schematic_configuration("fe80::e62:ea28:16e9:fe9%ens160", "root", "hponeview", dcs_commands)
+	dcs_inst = dcs("fe80::e62:ea28:16e9:fe9%ens160", "root", "hponeview")
+    dcs_inst.dcs_network_configuration()
+	dcs_inst.dcs_schematic_configuration(dcs_commands)
